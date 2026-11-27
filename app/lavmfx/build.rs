@@ -1,6 +1,7 @@
 //! Windows: compile `assets/lavmfx.rc` (icon + version info) and link it into
 //! lavmfx.exe. Uses `RC_<target>` / `RC` (e.g. llvm-rc when cross-building),
 //! else `llvm-rc`; on MSVC hosts `rc.exe`. Nothing to do on other systems.
+//! The version in the .rc comes from Cargo.toml (`@VERSION@` placeholders).
 use std::{env, path::PathBuf, process::Command};
 
 fn main() {
@@ -20,13 +21,33 @@ fn main() {
                 "llvm-rc".into()
             }
         });
-    let out = PathBuf::from(env::var("OUT_DIR").unwrap()).join("lavmfx.res");
+    let out_dir = PathBuf::from(env::var("OUT_DIR").unwrap());
+    let out = out_dir.join("lavmfx.res");
     let assets = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap()).join("assets");
+    // The .rc with this version filled in; compiled from `assets` so the icon is found.
+    let version = env::var("CARGO_PKG_VERSION").unwrap();
+    let mut nums: Vec<String> = version
+        .split(['.', '-', '+'])
+        .take(3)
+        .map(|p| p.parse::<u16>().unwrap_or(0).to_string())
+        .collect();
+    nums.resize(4, "0".into());
+    let template = std::fs::read_to_string(assets.join("lavmfx.rc")).expect("assets/lavmfx.rc");
+    let rc_file = out_dir.join("lavmfx.rc");
+    std::fs::write(
+        &rc_file,
+        template
+            .replace("@VERSION_COMMAS@", &nums.join(","))
+            .replace("@VERSION@", &version),
+    )
+    .expect("write lavmfx.rc");
     let status = Command::new(&rc)
         .current_dir(&assets)
-        .args(["/nologo", "/fo"])
+        .args(["/nologo", "/i"])
+        .arg(&assets)
+        .arg("/fo")
         .arg(&out)
-        .arg("lavmfx.rc")
+        .arg(&rc_file)
         .status();
     match status {
         Ok(s) if s.success() => println!("cargo:rustc-link-arg-bins={}", out.display()),

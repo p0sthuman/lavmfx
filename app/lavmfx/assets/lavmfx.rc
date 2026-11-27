@@ -1,8 +1,9 @@
 // Windows resources for lavmfx.exe (compiled by build.rs with llvm-rc / rc).
+// build.rs fills in @VERSION@ ("0.2.3") and @VERSION_COMMAS@ (0,2,3,0) from Cargo.toml.
 1 ICON "lavmfx.ico"
 1 VERSIONINFO
-FILEVERSION 0,1,1,0
-PRODUCTVERSION 0,1,1,0
+FILEVERSION @VERSION_COMMAS@
+PRODUCTVERSION @VERSION_COMMAS@
 BEGIN
   BLOCK "StringFileInfo"
   BEGIN
@@ -11,9 +12,9 @@ BEGIN
       VALUE "FileDescription", "LAVMFX - Live Audio Visual Mapping FX Mixer"
       VALUE "ProductName", "LAVMFX"
       VALUE "OriginalFilename", "lavmfx.exe"
-      VALUE "FileVersion", "0.1.1"
-      VALUE "ProductVersion", "0.1.1"
-      VALUE "LegalCopyright", "Copyright (C) 2026 p0sthuman, GPL-3.0-or-later"
+      VALUE "FileVersion", "@VERSION@"
+      VALUE "ProductVersion", "@VERSION@"
+      VALUE "LegalCopyright", "Copyright (C) 2026 Kage Bunshin (p0sthuman), GPL-3.0-or-later"
     END
   END
   BLOCK "VarFileInfo"

@@ -12,6 +12,11 @@ What changed in each LAVMFX release. Downloads are on the
   Show Settings Folder, and **About LAVMFX** (version and build, licence,
   links). About is in the LAVMFX menu too.
 
+### Fixed
+
+- **Windows showed version 0.1.1** in lavmfx.exe's file properties. The
+  version now comes from the build itself.
+
 ## 0.2.2 (pre-release)
 
 ### Fixed
