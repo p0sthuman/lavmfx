@@ -10,7 +10,7 @@ modes and transitions, stack real-time effects, drive any parameter from the
 beat or the music, and map the result onto screens, slices and LED fixtures.
 The M is for both *Mapping* and *Mixer*.
 
-**One app on Linux and Windows** (macOS is coming), with the same `.lavmfx`
+**One app on Linux, Windows and macOS**, with the same `.lavmfx`
 show files and the same control over MIDI, OSC and REST, so a show moves
 between machines as it is. A few extras are system-specific for now, like
 PipeWire video sharing and FFGL plugins on Linux.
