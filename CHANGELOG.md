@@ -3,6 +3,40 @@
 What changed in each LAVMFX release. Downloads are on the
 [Releases](https://github.com/p0sthuman/lavmfx/releases) page.
 
+## 0.2.5 (pre-release)
+
+### Added
+
+- **Blackout**: a BLACKOUT button in the toolbar (and on the tablet) turns
+  the picture black on every output; sound keeps playing. Over OSC / REST it
+  is `/composition/bypassed`.
+- **Tablet Chase tab** (Open Stage Control layout): control a Slice Chase
+  effect from the tablet: pick the effect and its sequence, advance mode,
+  step length or step time, direction, pattern, attack, trail and opacity,
+  and Next / Previous / Blast / Reset.
+
+### Changed
+
+- **Tablet layout** (`remote/lavmfx-control.json`, reload it in Open Stage
+  Control):
+  - The Clip / Layer / Comp FX tabs with a small fader per effect parameter
+    are gone; use the dashboards.
+  - Faders are wide and the whole fader is the touch area. Names are written
+    on the faders instead of taking rows of their own.
+  - One Mixer page: a V fader per layer (the M V A switch adds master and
+    audio volume), layer group strips, and the Composition, Layer, Group and
+    Clip dashboards in a 2 × 2 grid.
+  - Tap a layer or group name to select it in the app.
+  - The top bar is shorter, has /2 and ×2 for the tempo, and BLACKOUT in
+    place of CLEAR ALL.
+  - The tablet's clip grid follows the app's grid when it scrolls, and
+    paging on the tablet scrolls the app's grid.
+
+### Fixed
+
+- **Effect stacks forgot which effects were folded** when a project was
+  opened again. The fold state is now saved with the project.
+
 ## 0.2.4 (pre-release)
 
 ### Added
