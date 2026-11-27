@@ -3,6 +3,27 @@
 What changed in each LAVMFX release. Downloads are on the
 [Releases](https://github.com/p0sthuman/lavmfx/releases) page.
 
+## 0.2.4 (pre-release)
+
+### Added
+
+- **Box selection**: drag from an empty slot or empty space in the clip grid
+  to select every clip the box touches. The same works on the Advanced Output
+  canvas and in its slice list for slices. Hold Ctrl or Shift when you start
+  to add to the selection.
+- **Shift+click in the Advanced Output slice list** selects every slice
+  between the selected one and the clicked one (Ctrl+click still adds or
+  removes one).
+
+### Changed
+
+- **Layer headers stay in view** when the clip grid scrolls sideways: the
+  Composition row, group bands and layer controls stay at the left and the
+  clips slide under them.
+- **One beat counter in the toolbar**: the bar.beat number is gone (it looked
+  like a second BPM); the four-square beat lamp is bigger and shows bar and
+  beat on hover.
+
 ## 0.2.3 (pre-release)
 
 ### Added
