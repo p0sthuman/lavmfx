@@ -109,6 +109,13 @@ pub struct LavmfxApp {
     grid_view: egui::Rect,
     /// Layer shown in the layer panel.
     selected_layer: Option<usize>,
+    /// Right edge (screen x) of the clip grid's pinned header column; slots
+    /// left of it are hidden under the headers.
+    grid_pin: f32,
+    /// Box selection being dragged on the clip grid.
+    grid_marquee: Option<Marquee>,
+    /// Screen position of the clip grid's content origin (moves with scrolling).
+    grid_origin: egui::Pos2,
     /// Last position of clips that stopped (for play-mode-away "Continue").
     resume: HashMap<Id, f64>,
     /// Last launched column (deck, column), highlighted in the header.
@@ -295,6 +302,9 @@ impl LavmfxApp {
             opening: Vec::new(),
             outgoing: Vec::new(),
             selected_layer: None,
+            grid_pin: f32::NEG_INFINITY,
+            grid_marquee: None,
+            grid_origin: egui::Pos2::ZERO,
             selected_group: None,
             reveal: None,
             focus_tab: None,
@@ -1509,6 +1519,9 @@ impl LavmfxApp {
     /// (the gap and the outer ~15 % of each slot's width).
     fn drop_at(&self, p: egui::Pos2, gap: f32) -> Option<DropAt> {
         let edge = CLIP_W * 0.15;
+        if p.x < self.grid_pin {
+            return None;
+        }
         self.slot_rects.iter().find_map(|(r, (l, c))| {
             let zone = r.expand2(vec2(gap / 2.0, 0.0));
             if !zone.contains(p) {
@@ -2016,7 +2029,7 @@ impl LavmfxApp {
         let slot = self
             .slot_rects
             .iter()
-            .find(|(r, _)| r.contains(pos))
+            .find(|(r, _)| pos.x >= self.grid_pin && r.contains(pos))
             .map(|(r, s)| (*r, *s));
         // Sources go into any slot (replacing its clip); effects into an empty slot make an
         // effect clip.
@@ -2030,15 +2043,11 @@ impl LavmfxApp {
             Some((r, (li, ci))) => filled(li, ci).then_some((r, FxTarget::Clip(li, ci))),
             None => {
                 // Layer header = the row left of its first slot.
+                // Layer header = the pinned column left of the slots.
                 let layer = self.layer_rows.iter().find(|(r, _)| r.contains(pos)).map(|(r, li)| {
-                    let right = self
-                        .slot_rects
-                        .iter()
-                        .filter(|(_, s)| s.0 == *li)
-                        .map(|(sr, _)| sr.left())
-                        .fold(r.right(), f32::min);
+                    let left = self.grid_view.left().max(r.left());
                     (
-                        egui::Rect::from_min_max(r.min, egui::pos2(right, r.bottom())),
+                        egui::Rect::from_min_max(egui::pos2(left, r.top()), egui::pos2(self.grid_pin, r.bottom())),
                         FxTarget::Layer(*li),
                     )
                 });
@@ -3039,15 +3048,28 @@ impl LavmfxApp {
         let mut skip = None;
         let mut grid_action = None;
         let mut preview = None;
+        let mut marquee_start = false;
         egui::ScrollArea::both().auto_shrink([false, false]).show(ui, |ui| {
             self.grid_view = ui.clip_rect();
-            // Composition row (crossfader) + column headers: click = launch column.
+            // The header column (composition cell, group bands, layer headers)
+            // stays at the left edge when the grid scrolls sideways.
             let view = self.view;
+            let origin = ui.max_rect().min;
+            let sx = (ui.clip_rect().left() - origin.x).max(0.0);
+            let pin_w = header_extra_w(view, ui.spacing().item_spacing.x);
+            self.grid_pin = origin.x + sx + pin_w;
+            self.grid_origin = origin;
+            // Drag on empty grid space: box selection (widgets on top win).
+            let bg = ui.interact(
+                ui.clip_rect(),
+                ui.scope_id().with("grid-bg"),
+                egui::Sense::click_and_drag(),
+            );
+            marquee_start |= bg.drag_started();
+            // Composition row (crossfader) + column headers: click = launch column.
             ui.horizontal(|ui| {
-                let gap = ui.spacing().item_spacing.x;
-                let w = header_extra_w(view, gap);
-                ui.allocate_ui_with_layout(vec2(w, 18.0), egui::Layout::left_to_right(egui::Align::Center), |ui| {
-                    ui.set_width(w);
+                let w = pin_w;
+                pinned_cell(ui, vec2(w, 18.0), sx, |ui| {
                     ui.spacing_mut().item_spacing.x = 2.0;
                     ui.label(RichText::new("Composition").small().strong());
                     if view.crossfader {
@@ -3102,7 +3124,7 @@ impl LavmfxApp {
                 if let Some(gi) = group {
                     if li + 1 == n || self.comp.group_of(li + 1) != Some(gi) {
                         let sel = self.selected_group == Some(gi);
-                        let b = group_band(ui, gi, &mut self.comp.layergroups[gi], sel, view);
+                        let b = group_band(ui, gi, &mut self.comp.layergroups[gi], sel, view, sx);
                         self.group_bands.push((b.rect, li));
                         if b.select {
                             // The selected layer stays (Layer and Group panels are separate).
@@ -3127,19 +3149,12 @@ impl LavmfxApp {
                     let dir = self.playing_direction(li);
                     let menu_ctx = self.layer_menu_ctx(Some(li));
                     let any_playing = self.playing[li].is_some();
+                    let layer_selected = self.selected_layer == Some(li);
                     let ids = &mut self.comp.ids;
                     let layer = &mut self.comp.layers[li];
-                    let h = layer_header(
-                        ui,
-                        li,
-                        &menu_ctx,
-                        layer,
-                        ids,
-                        any_playing,
-                        dir,
-                        self.selected_layer == Some(li),
-                        view,
-                    );
+                    let h = pinned_cell(ui, vec2(pin_w, CLIP_H), sx, |ui| {
+                        layer_header(ui, li, &menu_ctx, layer, ids, any_playing, dir, layer_selected, view)
+                    });
                     if h.clear {
                         clear = Some(li);
                     }
@@ -3202,8 +3217,12 @@ impl LavmfxApp {
                                 preview = Some((li, ci));
                             }
                         }
-                        if pick.drag_started() && !clip.is_empty() {
-                            drag_start = Some((li, ci));
+                        if pick.drag_started() {
+                            if clip.is_empty() {
+                                marquee_start = true;
+                            } else {
+                                drag_start = Some((li, ci));
+                            }
                         }
                         if name.as_ref().is_some_and(egui::Response::clicked) {
                             trigger = Some((li, ci));
@@ -3220,20 +3239,34 @@ impl LavmfxApp {
                         let whole = egui::Rect::from_min_size(pick.rect.min, vec2(CLIP_W, CLIP_H));
                         if self.reveal == Some((li, ci)) {
                             // Minimal scroll: the row is on screen already, so only x moves.
-                            ui.scroll_to_rect(whole, None);
+                            // Room for the pinned headers on its left, so it isn't under them.
+                            let room = whole.with_min_x(whole.left() - pin_w);
+                            ui.scroll_to_rect(room, None);
                             self.reveal = None;
                         }
                         self.slot_rects.push((whole, (li, ci)));
                     }
                 });
                 if let Some(gi) = group {
-                    let r = row.response.rect;
+                    let r = row.response.rect.translate(vec2(sx, 0.0));
                     let stripe = egui::Rect::from_min_max(r.left_top(), pos2(r.left() + 3.0, r.bottom()));
                     ui.painter().rect_filled(stripe, 0.0, group_color(gi));
                 }
                 self.layer_rows.push((row.response.rect, li));
             }
         });
+        if marquee_start && let Some(p) = ui.input(|i| i.pointer.press_origin()) {
+            let base = if mods.command || mods.shift {
+                self.selection.clone()
+            } else {
+                BTreeSet::new()
+            };
+            self.grid_marquee = Some(Marquee {
+                start: p - self.grid_origin,
+                base,
+            });
+        }
+        self.marquee_feedback(ui);
         self.layer_drag_feedback(ui);
         let targets = self.drag_targets();
         for (rect, slot) in &self.slot_rects {
@@ -3291,6 +3324,47 @@ impl LavmfxApp {
             self.clip_drag = Some(slot);
         }
         self.clip_drag_feedback(ui);
+    }
+
+    /// While a box selection is dragged on the grid: the box, and every
+    /// filled slot it touches selected (added to what was selected before
+    /// when Ctrl / Shift was held at the start).
+    fn marquee_feedback(&mut self, ui: &mut egui::Ui) {
+        let Some(m) = &self.grid_marquee else { return };
+        let (pos, down) = ui.input(|i| (i.pointer.latest_pos(), i.pointer.primary_down()));
+        let Some(pos) = pos.filter(|_| down) else {
+            self.grid_marquee = None;
+            return;
+        };
+        let rect = egui::Rect::from_two_pos(self.grid_origin + m.start, pos);
+        let mut sel = m.base.clone();
+        for (r, (l, c)) in &self.slot_rects {
+            let filled = self
+                .comp
+                .layers
+                .get(*l)
+                .and_then(|x| x.clips.get(*c))
+                .is_some_and(|x| !x.is_empty());
+            if filled && r.right() > self.grid_pin && r.intersects(rect) {
+                sel.insert((*l, *c));
+            }
+        }
+        if !self.selected_clip.is_some_and(|s| sel.contains(&s)) {
+            self.selected_clip = sel.iter().next().copied();
+        }
+        if let Some((l, _)) = self.selected_clip {
+            self.selected_layer = Some(l);
+        }
+        self.selection = sel;
+        let accent = theme::cur().accent;
+        let painter = ui.ctx().layer_painter(egui::LayerId::new(
+            egui::Order::Foreground,
+            egui::Id::unique("grid-marquee"),
+        ));
+        let shown = rect.intersect(self.grid_view.with_min_x(self.grid_pin.max(self.grid_view.left())));
+        painter.rect_filled(shown, 0.0, accent.gamma_multiply(0.12));
+        painter.rect_stroke(shown, 0.0, egui::Stroke::new(1.0, accent), egui::StrokeKind::Inside);
+        ui.ctx().request_repaint();
     }
 
     /// While a layer name strip is dragged: a line where the layer would
@@ -3867,7 +3941,10 @@ impl LavmfxApp {
     }
 
     fn slot_at(&self, p: egui::Pos2) -> Option<(usize, usize)> {
-        self.slot_rects.iter().find(|(r, _)| r.contains(p)).map(|(_, s)| *s)
+        self.slot_rects
+            .iter()
+            .find(|(r, _)| p.x >= self.grid_pin && r.contains(p))
+            .map(|(_, s)| *s)
     }
 
     /// Slots the dragged files would fill (the hovered slot and the ones to its right).
@@ -3997,7 +4074,8 @@ impl eframe::App for LavmfxApp {
     }
 
     /// Debug: `LAVMFX_SCREENSHOT_WHEEL="x,y"` keeps the pointer at x,y and scrolls down
-    /// (with `LAVMFX_SCREENSHOT`), to check panel scrolling in self-screenshots.
+    /// (with `LAVMFX_SCREENSHOT`), to check panel scrolling in self-screenshots;
+    /// `LAVMFX_SCREENSHOT_WHEEL_RIGHT` scrolls right instead.
     fn raw_input_hook(&mut self, _ctx: &egui::Context, raw: &mut egui::RawInput) {
         if std::env::var_os("LAVMFX_SCREENSHOT").is_some() {
             live::probe_keys(self.started, raw);
@@ -4016,7 +4094,11 @@ impl eframe::App for LavmfxApp {
         raw.events.push(egui::Event::PointerMoved(pos));
         raw.events.push(egui::Event::MouseWheel {
             unit: egui::MouseWheelUnit::Line,
-            delta: egui::vec2(0.0, -1.0),
+            delta: if std::env::var_os("LAVMFX_SCREENSHOT_WHEEL_RIGHT").is_some() {
+                egui::vec2(-1.0, 0.0)
+            } else {
+                egui::vec2(0.0, -1.0)
+            },
             modifiers: Default::default(),
             phase: egui::TouchPhase::Move,
             source: egui::MouseWheelSource::Wheel,
@@ -4266,6 +4348,33 @@ const TRANSITION_W: f32 = 48.0;
 const AV_W: f32 = 3.0 * FADER_W + 2.0 * 2.0;
 const FADER_W: f32 = 18.0;
 
+/// Box selection on the clip grid.
+struct Marquee {
+    /// Where the drag started, relative to the grid's content origin (so
+    /// the box keeps its corner when the grid scrolls).
+    start: egui::Vec2,
+    /// Selection to add the boxed slots to (Ctrl / Shift held at the start).
+    base: BTreeSet<(usize, usize)>,
+}
+
+/// Lays out `add` in a `size` cell at the row's left that stays in view when
+/// the grid scrolls sideways by `sx`. The rest of the row is clipped to the
+/// cell's right, so slots slide under it instead of over it.
+fn pinned_cell<R>(ui: &mut egui::Ui, size: egui::Vec2, sx: f32, add: impl FnOnce(&mut egui::Ui) -> R) -> R {
+    let (_, rect) = ui.allocate_space(size);
+    let rect = rect.translate(vec2(sx, 0.0));
+    let mut cell = ui.new_child(
+        egui::UiBuilder::new()
+            .max_rect(rect)
+            .layout(egui::Layout::left_to_right(egui::Align::Center)),
+    );
+    cell.set_width(size.x);
+    let r = add(&mut cell);
+    let clip = ui.clip_rect();
+    ui.set_clip_rect(clip.with_min_x(clip.left().max(rect.right())));
+    r
+}
+
 /// Width of the layer header plus its optional columns.
 fn header_extra_w(view: dock::ViewOptions, gap: f32) -> f32 {
     LAYER_HEADER_W + AV_W + gap + if view.layer_transition { TRANSITION_W + gap } else { 0.0 }
@@ -4297,6 +4406,7 @@ fn group_band(
     g: &mut lavmfx_core::LayerGroup,
     selected: bool,
     view: dock::ViewOptions,
+    sx: f32,
 ) -> BandActions {
     let mut out = BandActions {
         select: false,
@@ -4307,8 +4417,7 @@ fn group_band(
     let w = header_extra_w(view, gap);
     out.rect = ui
         .horizontal(|ui| {
-            ui.allocate_ui_with_layout(vec2(w, 20.0), egui::Layout::left_to_right(egui::Align::Center), |ui| {
-                ui.set_width(w);
+            pinned_cell(ui, vec2(w, 20.0), sx, |ui| {
                 ui.spacing_mut().item_spacing.x = 2.0;
                 ui.spacing_mut().button_padding = vec2(3.0, 0.0);
                 let color = group_color(gi);
@@ -4368,7 +4477,8 @@ fn group_band(
             });
         })
         .response
-        .rect;
+        .rect
+        .translate(vec2(sx, 0.0));
     out
 }
 

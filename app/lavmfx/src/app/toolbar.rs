@@ -85,7 +85,8 @@ impl LavmfxApp {
             ui.add_space(6.0);
             // Beat lamp: 4 squares (2×2), the current beat lit, going round
             // clockwise (1 top-left, 2 top-right, 3 bottom-right, 4 bottom-left).
-            let (rect, _) = ui.allocate_exact_size(vec2(H, H), egui::Sense::hover());
+            // Bar . beat shows on hover (the lamp is the only counter).
+            let (rect, lamp) = ui.allocate_exact_size(vec2(H, H), egui::Sense::hover());
             let pal = theme::cur();
             let (bar, beat) = self.clock.bar_beat();
             let pulse = if self.clock.paused() {
@@ -93,7 +94,7 @@ impl LavmfxApp {
             } else {
                 (-(self.clock.beats().fract()) * 6.0).exp() as f32
             };
-            let inner = rect.shrink(3.0);
+            let inner = rect.shrink(0.5);
             let half = inner.size() / 2.0;
             for i in 0..4 {
                 let (col, row) = [(0, 0), (1, 0), (1, 1), (0, 1)][i];
@@ -108,8 +109,7 @@ impl LavmfxApp {
                 };
                 ui.painter().rect_filled(cell, 1.5, c);
             }
-            ui.label(RichText::new(format!("{bar}.{beat}")).monospace())
-                .on_hover_text("Bar . beat (4/4)");
+            lamp.on_hover_text(format!("Bar {bar} . beat {beat} (4/4)"));
             ui.add_space(6.0);
 
             let t = &mut self.comp.tempo_controller.tempo;
