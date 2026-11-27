@@ -396,15 +396,7 @@ impl LavmfxApp {
                         if ui.small_button("Folder").on_hover_text("Show in the file manager").clicked()
                             && let Some(dir) = r.path.parent()
                         {
-                            let _ = std::process::Command::new(if cfg!(target_os = "macos") {
-                                "open"
-                            } else if cfg!(target_os = "windows") {
-                                "explorer"
-                            } else {
-                                "xdg-open"
-                            })
-                            .arg(dir)
-                            .spawn();
+                            super::help::open_external(dir);
                         }
                     });
                 });

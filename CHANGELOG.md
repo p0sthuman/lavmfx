@@ -3,6 +3,15 @@
 What changed in each LAVMFX release. Downloads are on the
 [Releases](https://github.com/p0sthuman/lavmfx/releases) page.
 
+## Unreleased
+
+### Added
+
+- **Help menu**: the online read me, what's new in this version, releases,
+  Report a Problem, Copy System Info (version, system and GPU for a report),
+  Show Settings Folder, and **About LAVMFX** (version and build, licence,
+  links). About is in the LAVMFX menu too.
+
 ## 0.2.2 (pre-release)
 
 ### Fixed

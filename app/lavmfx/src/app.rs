@@ -34,6 +34,7 @@ mod smpte;
 mod tablet;
 pub(crate) use dock::config_dir;
 mod ffgl_host;
+mod help;
 mod isf_host;
 mod preview;
 mod record_ui;
@@ -141,6 +142,8 @@ pub struct LavmfxApp {
     /// Preferences (saved in `~/.config/lavmfx/preferences.json`).
     prefs: prefs::Preferences,
     prefs_win: prefs::PrefsWindow,
+    /// Help › About LAVMFX… window open.
+    about_open: bool,
     /// Audio devices: FFT input tap (M5).
     audio: crate::audio::Audio,
     /// Preferences changed outside the window (toolbar, panels): save once idle.
@@ -316,6 +319,7 @@ impl LavmfxApp {
             view: dock::ViewOptions::default(),
             prefs,
             prefs_win: Default::default(),
+            about_open: false,
             audio: Default::default(),
             prefs_dirty: None,
             theme_applied: None,
@@ -655,6 +659,10 @@ impl LavmfxApp {
                 app.chase_demo();
             }
             app.open_slice_chase();
+        }
+        // Debug: `LAVMFX_SCREENSHOT_ABOUT=1` opens Help › About LAVMFX….
+        if std::env::var_os("LAVMFX_SCREENSHOT").is_some() && std::env::var_os("LAVMFX_SCREENSHOT_ABOUT").is_some() {
+            app.about_open = true;
         }
         // `LAVMFX_SCREENSHOT_CHASE_PARAMS="Sequence=Columns;Trail=2"` sets chase effect params.
         if std::env::var_os("LAVMFX_SCREENSHOT").is_some()
@@ -2794,7 +2802,10 @@ impl LavmfxApp {
                 ui.label(RichText::new("LAVMFX").strong());
                 ui.label(RichText::new("Live Audio Visual Mapping FX Mixer\nsay \u{201c}love-me-FX\u{201d}").weak());
                 ui.separator();
-                ui.label(RichText::new(platform_info()).weak());
+                if ui.button("About LAVMFX…").clicked() {
+                    self.about_open = true;
+                    ui.close();
+                }
                 ui.separator();
                 if ui.button("Preferences…    Ctrl+,").clicked() {
                     self.prefs_win.open = true;
@@ -2926,6 +2937,7 @@ impl LavmfxApp {
                 }
             });
             ui.menu_button("View", |ui| self.view_menu(ui));
+            ui.menu_button("Help", |ui| self.help_menu(ui));
         });
     }
 
@@ -4054,6 +4066,7 @@ impl eframe::App for LavmfxApp {
                 self.status = format!("Can't save preferences: {e}");
             }
         }
+        self.about_window(&ctx);
         prof::mark("prefs/audio sync");
         self.quit_confirmation(&ctx);
         self.learn_begin(&ctx);
@@ -5321,17 +5334,6 @@ impl FpsCounter {
             self.last = Some(now);
         }
     }
-}
-
-fn platform_info() -> String {
-    use lavmfx_io::platform;
-    format!(
-        "Texture sharing: {} (M8)\nPlugins: FFGL .{} (M8)\nVideo: {}\nAudio: {}",
-        platform::TEXTURE_SHARE_NAME,
-        platform::PLUGIN_EXTENSION,
-        lavmfx_media::VIDEO_EXTENSIONS.join(", "),
-        lavmfx_media::AUDIO_EXTENSIONS.join(", "),
-    )
 }
 
 /// Test card's second line: "1920 x 1080  16:9" (or "2.35:1" style).
