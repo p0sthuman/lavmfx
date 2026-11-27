@@ -3254,7 +3254,18 @@ impl LavmfxApp {
                 }
                 self.layer_rows.push((row.response.rect, li));
             }
+            // The tablet paged its window: scroll here so its lowest layer is at
+            // the bottom and its first column right of the headers.
+            if std::mem::take(&mut self.remote.grid_pending) {
+                let (l, c) = self.remote.grid_off;
+                if let Some((r, _)) = self.slot_rects.iter().find(|(_, s)| *s == (l, c)) {
+                    let view = ui.clip_rect();
+                    let to = egui::Rect::from_min_size(pos2(r.left() - pin_w, r.bottom() - view.height()), view.size());
+                    ui.scroll_to_rect_animation(to, Some(egui::Align::Min), egui::style::ScrollAnimation::none());
+                }
+            }
         });
+        self.sync_tablet_grid();
         if marquee_start && let Some(p) = ui.input(|i| i.pointer.press_origin()) {
             let base = if mods.command || mods.shift {
                 self.selection.clone()
@@ -3324,6 +3335,23 @@ impl LavmfxApp {
             self.clip_drag = Some(slot);
         }
         self.clip_drag_feedback(ui);
+    }
+
+    /// The clip grid's view (lowest mostly-visible layer, first column right
+    /// of the headers) changed by scrolling here: the tablet window follows.
+    fn sync_tablet_grid(&mut self) {
+        if self.grid_view.is_negative() {
+            return;
+        }
+        let view = self.grid_view.with_min_x(self.grid_pin.max(self.grid_view.left()));
+        let shown = self.slot_rects.iter().filter(|(r, _)| view.contains(r.center()));
+        let low = shown.clone().map(|(_, s)| s.0).min();
+        let first = shown.map(|(_, s)| s.1).min();
+        let (Some(l), Some(c)) = (low, first) else { return };
+        if self.remote.grid_seen != Some((l, c)) {
+            self.remote.grid_seen = Some((l, c));
+            self.remote.grid_off = (l, c);
+        }
     }
 
     /// While a box selection is dragged on the grid: the box, and every
@@ -4267,7 +4295,12 @@ impl eframe::App for LavmfxApp {
             FrameInput {
                 time: (self.clock.seconds() * self.comp.speed.value) as f32,
                 beat: self.clock.beats() as f32,
-                master: self.comp.master.value as f32,
+                // Blackout (composition bypassed): black picture, sound goes on.
+                master: if self.comp.bypassed.value {
+                    0.0
+                } else {
+                    self.comp.master.value as f32
+                },
             },
             &layer_draws,
         );

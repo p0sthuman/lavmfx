@@ -83,7 +83,7 @@ pub fn toggle_box(ui: &mut egui::Ui, value: &mut bool, label: &str, hover: &str,
     let pal = super::theme::pal(ui);
     let (fill, text) = match (*value, label) {
         (false, _) => (pal.button, pal.text),
-        (true, "B") => (pal.danger, pal.text_strong),
+        (true, "B" | "BLACKOUT") => (pal.danger, pal.text_strong),
         (true, _) => (pal.accent, pal.on_accent),
     };
     let text = if size.y > 20.0 {

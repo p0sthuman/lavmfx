@@ -938,6 +938,32 @@ mod tests {
     }
 
     #[test]
+    fn chase_params_by_chain_address() {
+        use crate::effects::FxTarget;
+        let mut c = Composition::new("T", 2, 2);
+        let t = FxTarget::Layer(1);
+        c.add_effect(t, "Slice Chase Sequencer", None).unwrap();
+        let s = Selection::default();
+        let map = chain_addresses(&c, t);
+        let id = |c: &Composition, k: &str| match c.effects(t).unwrap().last().unwrap().params.get(k) {
+            Some(crate::Param::Choice(x)) => (x.id, x.index as f64),
+            Some(crate::Param::Range(x)) => (x.id, x.value),
+            other => panic!("{k}: {other:?}"),
+        };
+        for (k, v, want) in [
+            ("Advance", Value::Int(1), 1.0),
+            ("Step Length", Value::Int(2), 2.0),
+            ("Direction", Value::Int(2), 2.0),
+            ("Trail", Value::Float(0.5), 8.0),
+            ("Attack", Value::Float(1.0), 1.0),
+        ] {
+            let addr = map[&id(&c, k).0].clone();
+            assert!(!matches!(apply(&mut c, &s, &addr, &v), Outcome::Unknown), "{k}: {addr}");
+            assert_eq!(id(&c, k).1, want, "{k}: {addr}");
+        }
+    }
+
+    #[test]
     fn read_many_matches_read() {
         let mut c = Composition::new("T", 3, 3);
         let s = sel();

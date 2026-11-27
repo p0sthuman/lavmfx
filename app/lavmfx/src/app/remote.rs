@@ -43,8 +43,15 @@ pub struct Remote {
     pub web_status: String,
     /// Tablet grid window offset (layer, column).
     pub grid_off: (usize, usize),
-    /// Tablet effect lists per scope: (scope, sliders, toggles) of (label, address).
-    pub fx_lists: Vec<(&'static str, super::tablet::FxList, super::tablet::FxList)>,
+    /// The tablet moved its window: the app's clip grid scrolls to match.
+    pub grid_pending: bool,
+    /// (lowest layer, first column) the app's clip grid showed last; when it
+    /// changes (scrolled in the app), the tablet's window follows.
+    pub grid_seen: Option<(usize, usize)>,
+    /// Slice Chase effect the tablet's Chase tab controls (index into the
+    /// composition's chase effects, see `tablet::chase_effects`); `None` =
+    /// the first one that isn't bypassed.
+    pub chase_pick: Option<usize>,
 }
 
 /// Readable bind failure ("port 8080 is already used by another program…").
@@ -195,6 +202,7 @@ impl LavmfxApp {
         let mut slot_vals: Vec<(String, Value)> = Vec::new();
         let mut params: Vec<String> = [
             "/composition/master",
+            "/composition/bypassed",
             "/composition/speed",
             "/composition/tempocontroller/tempo",
             "/composition/crossfader/phase",
@@ -248,7 +256,7 @@ impl LavmfxApp {
         params.extend(self.remote.watched.iter().cloned());
         // (sent as, read from): the tablet's relative addresses read absolute ones.
         let mut pairs: Vec<(String, String)> = params.into_iter().map(|p| (p.clone(), p)).collect();
-        self.tablet_feedback(&mut vals, &mut pairs, full);
+        self.tablet_feedback(&mut vals, &mut pairs);
         super::prof::mark(if full { "osc: tablet full" } else { "osc: tablet" });
         let sel = self.control_selection();
         let reads: Vec<String> = pairs.iter().map(|(_, r)| r.clone()).collect();

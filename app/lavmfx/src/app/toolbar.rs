@@ -1,5 +1,5 @@
 //! The toolbar row (beat lamp, BPM, −/+, nudge, /2, ×2, TAP, RESYNC,
-//! PAUSE … FFT GAIN + input meter) and the External FFT panel.
+//! PAUSE, BLACKOUT … FFT GAIN + input meter) and the External FFT panel.
 
 use std::time::Instant;
 
@@ -203,6 +203,18 @@ impl LavmfxApp {
             );
             if paused != self.clock.paused() {
                 self.clock.set_paused(paused);
+            }
+            // Blackout = composition bypassed: the picture goes black, sound goes on.
+            let mut black = self.comp.bypassed.value;
+            widgets::toggle_box(
+                ui,
+                &mut black,
+                "BLACKOUT",
+                "Black picture on every output (sound keeps playing); also /composition/bypassed",
+                vec2(84.0, H),
+            );
+            if black != self.comp.bypassed.value {
+                self.comp.bypassed.value = black;
             }
             // Ableton Link: on/off + peers.
             let mut link = self.prefs.ableton_link;
