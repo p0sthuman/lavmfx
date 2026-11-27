@@ -128,6 +128,12 @@ pub struct Editor {
     also_key: (usize, Option<usize>, usize),
     /// The other selected slices when a drag started.
     grab_also: Vec<(usize, Slice)>,
+    /// Box selection dragged from empty canvas: start (screen), and the
+    /// slices it adds to (Ctrl / Shift held at the start).
+    marquee: Option<(Pos2, Vec<usize>)>,
+    /// Box selection dragged from empty space in the slice list: start
+    /// (screen), and the (screen, slices) it adds to (Ctrl / Shift at the start).
+    list_marquee: Option<(Pos2, Option<SliceSel>)>,
     /// Pen tool in progress: target + points so far (content px).
     pen: Option<(PenFor, Vec<Pt>)>,
     /// Points of the mask / polygon when its drag started.
@@ -149,6 +155,9 @@ pub struct Editor {
     /// Fixture library (loaded when first needed; None = reload).
     library: Option<Vec<lavmfx_core::dmx::Personality>>,
 }
+
+/// Selected slices of one screen: (screen, slices).
+type SliceSel = (usize, Vec<usize>);
 
 /// A slice / output mask row dragged in the tree (reorders within its list).
 #[derive(Debug, Clone, Copy)]
@@ -214,6 +223,8 @@ impl Editor {
             also: Vec::new(),
             also_key: (0, None, 0),
             grab_also: Vec::new(),
+            marquee: None,
+            list_marquee: None,
             pen: None,
             grab_poly: None,
             guide: None,
@@ -252,6 +263,61 @@ fn toggle_select(ed: &mut Editor, li: usize, n: usize) {
     } else {
         ed.also.push(li);
     }
+    ed.mask = None;
+    ed.also_key = (ed.screen, ed.slice, n);
+}
+
+impl LavmfxApp {
+    /// Box selection in the slice list: every slice row the box touches, in
+    /// the screen of the first one (or of the selection it adds to).
+    fn list_box_select(&self, ui: &egui::Ui, ed: &mut Editor, rows: &[(usize, usize, Rect)], bg: &egui::Response) {
+        let Some((start, base)) = &ed.list_marquee else { return };
+        let Some(p) = ui.input(|i| i.pointer.latest_pos()).filter(|_| bg.dragged()) else {
+            ed.list_marquee = None;
+            return;
+        };
+        let rect = Rect::from_two_pos(*start, p);
+        let hits: Vec<(usize, usize)> = rows
+            .iter()
+            .filter(|(.., r)| r.intersects(rect))
+            .map(|&(s, l, _)| (s, l))
+            .collect();
+        let screen = base.as_ref().map(|b| b.0).or(hits.first().map(|h| h.0));
+        if let Some(si) = screen {
+            let mut sel: Vec<usize> = base.as_ref().map(|b| b.1.clone()).unwrap_or_default();
+            for &(s, l) in &hits {
+                if s == si && !sel.contains(&l) {
+                    sel.push(l);
+                }
+            }
+            let n = self.outputs.setup.screens.get(si).map_or(0, |s| s.slices.len());
+            // The lead stays if it's still selected, else the top-most slice.
+            let lead = ed
+                .slice
+                .filter(|l| ed.screen == si && sel.contains(l))
+                .or(sel.iter().max().copied());
+            sel.retain(|&l| Some(l) != lead && l < n);
+            ed.screen = si;
+            ed.slice = lead;
+            ed.also = sel;
+            ed.mask = None;
+            ed.dmx = None;
+            ed.also_key = (si, lead, n);
+        }
+        let accent = theme::pal(ui).accent;
+        let painter = ui.painter();
+        painter.rect_filled(rect, 0.0, accent.gamma_multiply(0.12));
+        painter.rect_stroke(rect, 0.0, Stroke::new(1.0, accent), egui::StrokeKind::Inside);
+    }
+}
+
+/// Shift+click on slice `li` (of `n`): the selected slice stays the lead and
+/// every slice between it and `li` joins it.
+fn range_select(ed: &mut Editor, li: usize, n: usize) {
+    let Some(a) = ed.slice else {
+        return toggle_select(ed, li, n);
+    };
+    ed.also = (a.min(li)..=a.max(li)).filter(|&i| i != a && i < n).collect();
     ed.mask = None;
     ed.also_key = (ed.screen, ed.slice, n);
 }
@@ -735,7 +801,8 @@ impl LavmfxApp {
                     });
                 self.presets_menu(ui, &mut ed);
                 ui.separator();
-                egui::ScrollArea::vertical().show(ui, |ui| {
+                // Full height, so a box selection can start below the list.
+                egui::ScrollArea::vertical().auto_shrink([false, false]).show(ui, |ui| {
                     self.tree(ui, &mut ed);
                     if !self.outputs.setup.lumiverses.is_empty() {
                         ui.separator();
@@ -1089,6 +1156,19 @@ impl LavmfxApp {
         let mut action: Option<(usize, Option<usize>, &str)> = None;
         // Dropped row: (screen, mask?, from, to).
         let mut dropped: Option<(usize, bool, usize, usize)> = None;
+        // Drag on empty list space (rows on top win): box selection of slices.
+        let list = ui.clip_rect();
+        let bg = ui.interact(list, ui.scope_id().with("tree-bg"), egui::Sense::drag());
+        if bg.drag_started()
+            && let Some(p) = ui.input(|i| i.pointer.press_origin())
+        {
+            let add = ui.input(|i| i.modifiers.command || i.modifiers.shift);
+            let base = (add && ed.dmx.is_none())
+                .then(|| (ed.screen, ed.slice.into_iter().chain(ed.also.iter().copied()).collect()));
+            ed.list_marquee = Some((p, base));
+        }
+        // Slice rows (screen, slice, row rect) for the box selection.
+        let mut rows: Vec<(usize, usize, Rect)> = Vec::new();
         ui.scope(|ui| {
             for (si, s) in self.outputs.setup.screens.iter_mut().enumerate() {
                 ui.horizontal(|ui| {
@@ -1173,7 +1253,7 @@ impl LavmfxApp {
                 let n_slices = s.slices.len();
                 for li in (0..n_slices).rev() {
                     let sl = &mut s.slices[li];
-                    ui.horizontal(|ui| {
+                    let row = ui.horizontal(|ui| {
                         ui.add_space(14.0);
                         if ui.checkbox(&mut sl.enabled, "").on_hover_text("Slice on / off").changed() {
                             action = Some((si, Some(li), "touch"));
@@ -1192,9 +1272,14 @@ impl LavmfxApp {
                             )
                             .on_hover_text("Drag to reorder: slices higher in the list are drawn on top");
                         if r.clicked() {
-                            let multi = ui.input(|i| i.modifiers.command || i.modifiers.shift);
-                            if multi && ed.screen == si && ed.dmx.is_none() {
-                                // Ctrl / Shift+click: into the selection or out of it.
+                            let (shift, ctrl) = ui.input(|i| (i.modifiers.shift, i.modifiers.command));
+                            let same = ed.screen == si && ed.dmx.is_none();
+                            if shift && same && ed.slice.is_some() {
+                                // Shift+click: every slice from the selected one to this one.
+                                check_also(ed, n_slices);
+                                range_select(ed, li, n_slices);
+                            } else if (ctrl || shift) && same {
+                                // Ctrl+click: into the selection or out of it.
                                 check_also(ed, n_slices);
                                 toggle_select(ed, li, n_slices);
                             } else {
@@ -1224,10 +1309,12 @@ impl LavmfxApp {
                             }
                         });
                     });
+                    rows.push((si, li, row.response.rect.with_max_x(list.right())));
                 }
                 ui.add_space(4.0);
             }
         });
+        self.list_box_select(ui, ed, &rows, &bg);
         // Reorders: from the drop, or the context menu's front / up / down / back.
         let order = dropped.or_else(|| {
             let (si, Some(i), a) = action? else { return None };
@@ -1900,7 +1987,15 @@ impl LavmfxApp {
                         ed.grab_slice = Some(screen.slices[li].clone());
                     }
                 }
-                None => {}
+                None => {
+                    // Empty canvas: box selection of slices.
+                    let base = if multi_key {
+                        ed.slice.into_iter().chain(ed.also.iter().copied()).collect()
+                    } else {
+                        Vec::new()
+                    };
+                    ed.marquee = Some((m, base));
+                }
             }
         }
         if resp.clicked()
@@ -2079,7 +2174,30 @@ impl LavmfxApp {
             }
             ed.snap_mark = mark;
         }
+        // Box selection: every slice the box touches (on top of the base).
+        if let (Some((m0, base)), Some(m)) = (&ed.marquee, resp.interact_pointer_pos())
+            && resp.dragged()
+        {
+            let rect = Rect::from_two_pos(*m0, m);
+            let mut sel = base.clone();
+            for (li, sl) in screen.slices.iter().enumerate() {
+                let pts: Vec<Pos2> = slice_outline(sl).into_iter().map(to).collect();
+                if Rect::from_points(&pts).intersects(rect) && !sel.contains(&li) {
+                    sel.push(li);
+                }
+            }
+            // The lead stays if it's still selected, else the top-most slice.
+            let lead = ed.slice.filter(|l| sel.contains(l)).or(sel.iter().max().copied());
+            sel.retain(|&l| Some(l) != lead);
+            ed.slice = lead;
+            ed.also = sel;
+            ed.mask = None;
+            ed.also_key = (ed.screen, ed.slice, screen.slices.len());
+            p.rect_filled(rect, 0.0, pal.accent.gamma_multiply(0.12));
+            p.rect_stroke(rect, 0.0, Stroke::new(1.0, pal.accent), egui::StrokeKind::Inside);
+        }
         if resp.drag_stopped() {
+            ed.marquee = None;
             ed.grab_also.clear();
             ed.grab = None;
             ed.grab_slice = None;
