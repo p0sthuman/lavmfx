@@ -114,6 +114,7 @@ impl EffectSpec {
             mixer,
             params,
             effect: ParameterCollection::new(),
+            collapsed: false,
         }
     }
 }

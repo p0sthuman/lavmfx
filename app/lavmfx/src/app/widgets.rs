@@ -1984,9 +1984,32 @@ pub fn section_header_dim(
     accent: bool,
     dim: bool,
 ) -> Section {
-    let pal = super::theme::pal(ui);
     let id = ui.make_persistent_id(("section", id_salt));
     let mut st = egui::collapsing_header::CollapsingState::load_with_default_open(ui.ctx(), id, default_open);
+    let mut open = st.is_open();
+    let s = section_band(ui, id, title, &mut open, accent, dim);
+    st.set_open(open);
+    st.store(ui.ctx());
+    s
+}
+
+/// [`section_header_dim`] whose open state is the caller's `open` (kept in
+/// the model, e.g. an effect's fold saved with the project).
+pub fn section_header_state(
+    ui: &mut egui::Ui,
+    id_salt: impl std::hash::Hash + std::fmt::Debug,
+    title: &str,
+    open: &mut bool,
+    accent: bool,
+    dim: bool,
+) -> Section {
+    let id = ui.make_persistent_id(("section", id_salt));
+    section_band(ui, id, title, open, accent, dim)
+}
+
+/// The section band itself; a click on its title part toggles `open`.
+fn section_band(ui: &mut egui::Ui, id: egui::Id, title: &str, open: &mut bool, accent: bool, dim: bool) -> Section {
+    let pal = super::theme::pal(ui);
     let x = ui.max_rect().x_range();
     let (rect, _) = ui.allocate_exact_size(vec2(ui.available_width(), ROW_H), egui::Sense::hover());
     let band = egui::Rect::from_x_y_ranges(x, rect.y_range());
@@ -1997,7 +2020,7 @@ pub fn section_header_dim(
     );
     let r = ui.interact(hit, id.with("toggle"), egui::Sense::click_and_drag());
     if r.clicked() {
-        st.toggle(ui);
+        *open = !*open;
     }
     let fill = match (accent, r.hovered()) {
         (true, _) => pal.accent_dim,
@@ -2009,7 +2032,7 @@ pub fn section_header_dim(
     // Fold arrow.
     let c = egui::pos2(band.left() + 9.0, band.center().y);
     let s = 3.5;
-    let pts = if st.is_open() {
+    let pts = if *open {
         vec![
             egui::pos2(c.x - s, c.y - s * 0.6),
             egui::pos2(c.x + s, c.y - s * 0.6),
@@ -2030,9 +2053,8 @@ pub fn section_header_dim(
         egui::FontId::proportional(13.0),
         if dim { pal.text_weak } else { pal.text_strong },
     );
-    st.store(ui.ctx());
     Section {
-        open: st.is_open(),
+        open: *open,
         header: band,
         title: r,
     }

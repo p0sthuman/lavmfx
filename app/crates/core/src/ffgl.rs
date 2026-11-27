@@ -173,6 +173,7 @@ pub fn instantiate_effect(p: &FfglPlugin, ids: &mut IdGen) -> VideoEffect {
         mixer,
         params,
         effect: ParameterCollection::new(),
+        collapsed: false,
     }
 }
 

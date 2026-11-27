@@ -382,6 +382,9 @@ pub struct VideoEffect {
     pub params: ParameterCollection,
     #[serde(default)]
     pub effect: ParameterCollection,
+    /// Folded in the effects panel (saved with the project; not an edit for undo).
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub collapsed: bool,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

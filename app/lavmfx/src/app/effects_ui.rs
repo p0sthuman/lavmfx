@@ -9,7 +9,7 @@ use lavmfx_render::EffectDraw;
 
 use super::widgets::{
     LABEL_W, RowOpts, Wheel, band_right, bool_row, category, choice_row, param_row, search_field, section_header,
-    section_header_dim, wheel_slider,
+    section_header_state, wheel_slider,
 };
 
 /// Renderer view of a clip: a source's generator first (on a clear layer), then the
@@ -34,6 +34,7 @@ pub fn clip_draws(clip: Option<&lavmfx_core::Clip>) -> Vec<EffectDraw> {
                     mixer: Default::default(),
                     params: params.clone(),
                     effect: Default::default(),
+                    collapsed: false,
                 })
             });
             out.push(EffectDraw {
@@ -381,14 +382,17 @@ fn effect_block(
     let mut action = None;
     let rendered = fx.is_rendered();
     // Effect row: teal band, name, inline opacity rail, ▲▼ B ✕.
-    let sec = section_header_dim(
+    // Open / folded is the effect's own (saved with the project).
+    let mut open = !fx.collapsed;
+    let sec = section_header_state(
         ui,
         ("fx", salt, fx.id),
         &fx.display_name,
-        true,
+        &mut open,
         true,
         fx.is_bypassed() || !rendered,
     );
+    fx.collapsed = !open;
     // Drag the band by its name: reorder, move to another Effects section, Alt/Ctrl = copy.
     sec.title.dnd_set_drag_payload(FxMove {
         from: target,
@@ -1131,6 +1135,7 @@ pub fn browser(ui: &mut egui::Ui, auditioning: Option<&FxDrop>) -> (Option<FxDro
                     mixer: Default::default(),
                     params: Default::default(),
                     effect: Default::default(),
+                    collapsed: false,
                 };
                 let builtin = effects::builtin_presets(&s.name);
                 let mine = super::presets::list(&fx_probe);

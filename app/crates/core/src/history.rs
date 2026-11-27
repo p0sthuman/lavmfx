@@ -135,8 +135,9 @@ fn strip(v: &mut J) {
     match v {
         J::Object(m) => {
             // `screen_name` / `slice_name`: Slice Chase's cache for finding
-            // slices again (relinking it isn't an edit).
-            for k in ["id", "ids", "selected", "tempo_controller", "screen_name", "slice_name"] {
+            // slices again (relinking it isn't an edit). `collapsed`: an
+            // effect folded in its panel (a view change, not an edit).
+            for k in ["id", "ids", "selected", "tempo_controller", "screen_name", "slice_name", "collapsed"] {
                 m.remove(k);
             }
             let driven = m
@@ -186,5 +187,23 @@ mod tests {
         let after = h.redo(&before).unwrap();
         assert!(after.layers[1].bypassed.value);
         assert!(h.can_undo() && !h.can_redo());
+    }
+
+    #[test]
+    fn effect_fold_is_saved_but_not_an_edit() {
+        let mut c = Composition::new("T", 1, 1);
+        c.add_effect(FxTarget::Layer(0), "Blur", None).unwrap();
+        let mut h = History::default();
+        h.reset(&c);
+        let fx = |c: &mut Composition| c.effects_mut(FxTarget::Layer(0)).unwrap().last_mut().unwrap().collapsed;
+        assert!(!fx(&mut c));
+        c.effects_mut(FxTarget::Layer(0)).unwrap().last_mut().unwrap().collapsed = true;
+        assert!(!h.commit(&c), "folding an effect isn't an undo step");
+        // Saved and loaded with the composition.
+        let mut back: Composition = serde_json::from_str(&serde_json::to_string(&c).unwrap()).unwrap();
+        assert!(fx(&mut back));
+        // Open effects don't write the field (older files and REST stay as they were).
+        let open = serde_json::to_string(&Composition::new("T", 1, 1)).unwrap();
+        assert!(!open.contains("collapsed"));
     }
 }

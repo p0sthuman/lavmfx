@@ -767,6 +767,7 @@ pub fn instantiate_effect(s: &IsfShader, ids: &mut IdGen) -> VideoEffect {
         mixer,
         params,
         effect: ParameterCollection::new(),
+        collapsed: false,
     }
 }
 
