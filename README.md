@@ -20,6 +20,8 @@ PipeWire video sharing and FFGL plugins on Linux.
 > page ([what changed](CHANGELOG.md)). Linux and Windows builds are tested;
 > on macOS, build it from source for now.
 
+![The main window: the clip grid with layers and columns, the composition and clip panels, an effect chain and the preview monitor](docs/images/main.png)
+
 ## What it does
 
 - **Clips and layers**: decks of layers × columns, column launch, clip
@@ -40,6 +42,23 @@ PipeWire video sharing and FFGL plugins on Linux.
   Open Stage Control tablet layout (`remote/`), undo for every change.
 - **Interop**: NDI in / out, PipeWire video sharing (Linux), recording and clip
   rendering, and import of Resolume Arena `.avc` compositions.
+
+## Screenshots
+
+**Projection mapping**: slices of any shape (rectangles, triangles, circles,
+polygons) placed on an output, next to a DMX lumiverse.
+
+![Advanced Output: rectangle, triangle, hexagon and circle slices on one screen](docs/images/mapping.png)
+
+**Slice Chase**: step sequences over the slices, built from a rule or by hand,
+played by the Slice Chase effects.
+
+![The Slice Chase window: a rule-based sequence over a 3 × 5 grid of slices, numbered in step order](docs/images/slice-chase.png)
+
+**DMX / pixel mapping**: fixtures patched into universes, with a live preview
+of what each fixture outputs.
+
+![Advanced Output in DMX mode: two universes of channels and an 8 × 8 LED matrix fixture with its output preview](docs/images/dmx-output.png)
 
 ## Run a build
 
