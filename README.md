@@ -16,7 +16,7 @@ between machines as it is. A few extras are system-specific for now, like
 PipeWire video sharing and FFGL plugins on Linux.
 
 > Early days: the app works and is used for testing. The latest pre-release,
-> 0.2.1, is on the [Releases](https://github.com/p0sthuman/lavmfx/releases)
+> 0.2.2, is on the [Releases](https://github.com/p0sthuman/lavmfx/releases)
 > page ([what changed](CHANGELOG.md)). Linux and Windows builds are tested;
 > on macOS, build it from source for now.
 

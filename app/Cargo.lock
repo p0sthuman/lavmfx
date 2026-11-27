@@ -1773,7 +1773,7 @@ dependencies = [
 
 [[package]]
 name = "lavmfx"
-version = "0.2.1"
+version = "0.2.2"
 dependencies = [
  "ab_glyph",
  "anyhow",
@@ -1795,7 +1795,7 @@ dependencies = [
 
 [[package]]
 name = "lavmfx-audio"
-version = "0.2.1"
+version = "0.2.2"
 dependencies = [
  "cpal",
  "lavmfx-core",
@@ -1806,7 +1806,7 @@ dependencies = [
 
 [[package]]
 name = "lavmfx-core"
-version = "0.2.1"
+version = "0.2.2"
 dependencies = [
  "indexmap",
  "serde",
@@ -1815,7 +1815,7 @@ dependencies = [
 
 [[package]]
 name = "lavmfx-io"
-version = "0.2.1"
+version = "0.2.2"
 dependencies = [
  "glow",
  "khronos-egl",
@@ -1833,7 +1833,7 @@ dependencies = [
 
 [[package]]
 name = "lavmfx-media"
-version = "0.2.1"
+version = "0.2.2"
 dependencies = [
  "ffmpeg-next",
  "libloading 0.8.9",
@@ -1845,7 +1845,7 @@ dependencies = [
 
 [[package]]
 name = "lavmfx-project"
-version = "0.2.1"
+version = "0.2.2"
 dependencies = [
  "lavmfx-core",
  "roxmltree",
@@ -1856,7 +1856,7 @@ dependencies = [
 
 [[package]]
 name = "lavmfx-render"
-version = "0.2.1"
+version = "0.2.2"
 dependencies = [
  "bytemuck",
  "lavmfx-core",

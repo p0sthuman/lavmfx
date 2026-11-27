@@ -3,7 +3,7 @@
 What changed in each LAVMFX release. Downloads are on the
 [Releases](https://github.com/p0sthuman/lavmfx/releases) page.
 
-## Unreleased
+## 0.2.2 (pre-release)
 
 ### Fixed
 
