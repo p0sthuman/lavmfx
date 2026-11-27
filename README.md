@@ -30,6 +30,9 @@ PipeWire video sharing and FFGL plugins on Linux.
   transport (loop, bounce, BPM sync, timeline, SMPTE), blend modes, transitions,
   groups, crossfader. Plays H.264 / HEVC / ProRes / HAP / DXV and more through
   FFmpeg, with hardware decoding where available; audio files and clip audio.
+- **Media Manager**: every file a composition uses, with the missing ones
+  marked; relink them one by one, by searching a folder for the file names, or
+  by swapping a path prefix (a show moved to another drive or machine).
 - **Effects**: about 100 GPU video effects and 17 generators, ISF shaders,
   FFGL plugins (Linux), and six audio effects, on clips, layers, groups and the
   composition.
@@ -38,6 +41,11 @@ PipeWire video sharing and FFGL plugins on Linux.
 - **Projection mapping**: multiple outputs and fullscreen per display, slices,
   input crop, corner-pin / bezier / grid warp, masks, soft edges, polygon
   slices, a test card.
+- **Slice Chase**: a built-in step sequencer for slices. Sequences come from a
+  rule (left → right, centre → out, clockwise, rows or columns together,
+  shuffle) or are made by hand on a map of the outputs, and step on the beat,
+  by time, on FFT hits or by button. Six effects play them: Sequencer, Wipe,
+  Runner, Tiles, Sample and Delay.
 - **DMX / pixel mapping**: Art-Net and sACN output, lumiverses and fixtures,
   fixture library and editor, Art-Net input for control.
 - **Live control**: keyboard and MIDI learn, OSC and a REST API, an
