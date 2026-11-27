@@ -261,6 +261,7 @@ impl LavmfxApp {
         }
         compositor.set_external_fx(ffgl.clone());
         preview_comp.set_external_fx(ffgl.clone());
+        cc.egui_ctx.set_fonts(theme::fonts());
         theme::apply(&cc.egui_ctx, &prefs.appearance);
         let gpu_summary = lavmfx_render::adapter_summary(&gpu.adapter);
         let native_bc = gpu.device.features().contains(lavmfx_render::WANTED_FEATURES);

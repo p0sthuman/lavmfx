@@ -177,6 +177,19 @@ impl Appearance {
 }
 
 /// Apply the theme to every egui style.
+/// egui's fonts with Hack (its bundled monospace font) added as the last
+/// fallback of the normal text font: Ubuntu and the emoji fonts have no
+/// arrows (→ ←) or ●, which then showed as empty boxes.
+pub fn fonts() -> egui::FontDefinitions {
+    let mut f = egui::FontDefinitions::default();
+    if let Some(prop) = f.families.get_mut(&egui::FontFamily::Proportional)
+        && !prop.iter().any(|n| n == "Hack")
+    {
+        prop.push("Hack".into());
+    }
+    f
+}
+
 pub fn apply(ctx: &egui::Context, look: &Appearance) {
     let p = look.palette();
     let dark = !look.light;
@@ -314,4 +327,24 @@ pub fn dock_style(ui: &egui::Ui) -> egui_dock::Style {
     st.buttons.close_tab_bg_fill = p.button_hover;
     st.overlay.selection_color = p.accent.gamma_multiply(0.4);
     st
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// Symbols the UI uses are drawn by the normal text font, not as boxes.
+    #[test]
+    fn ui_symbols_have_glyphs() {
+        let ctx = egui::Context::default();
+        ctx.set_fonts(fonts());
+        let font = FontId::proportional(14.0);
+        let mut out = ctx.run_pass(Default::default(), |ctx| {
+            for ch in ['→', '←', '↑', '↓', '↔', '●', '…', '×', '›', '▼', '–'] {
+                assert!(ctx.fonts_mut(|f| f.has_glyph(&font, ch)), "no glyph for {ch}");
+            }
+        });
+        // Font atlas uploads nobody draws in a test.
+        out.textures_delta.clear();
+    }
 }

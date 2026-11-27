@@ -3,6 +3,14 @@
 What changed in each LAVMFX release. Downloads are on the
 [Releases](https://github.com/p0sthuman/lavmfx/releases) page.
 
+## Unreleased
+
+### Fixed
+
+- **Arrows and the record dot showed as empty boxes** (for example "Left →
+  right" in Slice Chase). The UI font now falls back to egui's bundled Hack
+  font, which has them.
+
 ## 0.2.1 (pre-release)
 
 ### Fixed
