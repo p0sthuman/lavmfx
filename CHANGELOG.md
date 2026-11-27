@@ -3,6 +3,14 @@
 What changed in each LAVMFX release. Downloads are on the
 [Releases](https://github.com/p0sthuman/lavmfx/releases) page.
 
+## Unreleased
+
+### Fixed
+
+- **OBS showed no video format for the PipeWire output** (Video Capture
+  Device (PipeWire)), so it couldn't receive the composition. The output now
+  offers each pixel format on its own, as cameras do.
+
 ## 0.2.0 (pre-release)
 
 The first release in this repository. LAVMFX is a live VJ and

@@ -460,22 +460,25 @@ mod imp {
         })
     }
 
-    fn video_formats(formats: &[VideoFormat], size: Option<(u32, u32)>, rate: Option<u32>) -> Vec<u8> {
+    pub(super) fn video_formats(formats: &[VideoFormat], size: Option<(u32, u32)>, rate: Option<u32>) -> Vec<u8> {
         use spa::param::format::{FormatProperties as F, MediaSubtype, MediaType};
         let mut props = vec![
             spa::pod::property!(F::MediaType, Id, MediaType::Video),
             spa::pod::property!(F::MediaSubtype, Id, MediaSubtype::Raw),
         ];
-        props.push(spa::pod::Property::new(
-            F::VideoFormat.as_raw(),
-            spa::pod::Value::Choice(spa::pod::ChoiceValue::Id(spa::utils::Choice(
+        // One format is written as a plain Id, not a one-item choice: some
+        // apps (OBS's camera source) skip entries whose format is a choice.
+        let format = match formats {
+            [one] => spa::pod::Value::Id(spa::utils::Id(one.as_raw())),
+            _ => spa::pod::Value::Choice(spa::pod::ChoiceValue::Id(spa::utils::Choice(
                 spa::utils::ChoiceFlags::empty(),
                 spa::utils::ChoiceEnum::Enum {
                     default: spa::utils::Id(formats[0].as_raw()),
                     alternatives: formats.iter().map(|f| spa::utils::Id(f.as_raw())).collect(),
                 },
             ))),
-        ));
+        };
+        props.push(spa::pod::Property::new(F::VideoFormat.as_raw(), format));
         match size {
             Some((w, h)) => props.push(spa::pod::property!(
                 F::VideoSize,
@@ -883,8 +886,14 @@ mod imp {
             })
             .register()
             .map_err(|e| e.to_string())?;
-        let fmt = video_formats(&[VideoFormat::RGBA, VideoFormat::RGBx], Some((w, h)), Some(60));
-        let mut params = [Pod::from_bytes(&fmt).ok_or("format pod")?];
+        // One fixed EnumFormat per pixel format (as cameras offer them), so
+        // apps that read only fixed values (OBS) list them.
+        let rgba = video_formats(&[VideoFormat::RGBA], Some((w, h)), Some(60));
+        let rgbx = video_formats(&[VideoFormat::RGBx], Some((w, h)), Some(60));
+        let mut params = [
+            Pod::from_bytes(&rgba).ok_or("format pod")?,
+            Pod::from_bytes(&rgbx).ok_or("format pod")?,
+        ];
         stream
             .connect(
                 spa::utils::Direction::Output,
@@ -917,6 +926,26 @@ mod tests {
         imp::number_duplicates(&mut v);
         let labels: Vec<&str> = v.iter().map(|s| s.label.as_str()).collect();
         assert_eq!(labels, ["HD Webcam", "HD Webcam 2", "HD Webcam 3", "OBS"]);
+    }
+
+    /// The format property of an EnumFormat pod.
+    fn format_value(bytes: &[u8]) -> pipewire::spa::pod::Value {
+        use pipewire::spa::pod::{Value, deserialize::PodDeserializer};
+        let (_, v) = PodDeserializer::deserialize_any_from(bytes).unwrap();
+        let Value::Object(o) = v else { panic!("not an object") };
+        let key = pipewire::spa::param::format::FormatProperties::VideoFormat.as_raw();
+        o.properties.into_iter().find(|p| p.key == key).unwrap().value
+    }
+
+    /// One format is a plain Id (OBS's camera source skips choices); several
+    /// stay a choice for the receiving side.
+    #[test]
+    fn single_format_is_fixed() {
+        use pipewire::spa::{param::video::VideoFormat, pod::Value};
+        let one = imp::video_formats(&[VideoFormat::RGBA], Some((64, 32)), Some(60));
+        assert!(matches!(format_value(&one), Value::Id(id) if id.0 == VideoFormat::RGBA.as_raw()));
+        let two = imp::video_formats(&[VideoFormat::RGBA, VideoFormat::RGBx], None, None);
+        assert!(matches!(format_value(&two), Value::Choice(_)));
     }
     use std::time::{Duration, Instant};
 
