@@ -1,0 +1,24 @@
+# Build image for the portable Linux package: Ubuntu 22.04 = glibc 2.35, so
+# the binary runs on Ubuntu 22.04+, Debian 12+, Fedora 36+ and newer distros.
+# Built by packaging/build-linux-portable.sh (podman, rootless).
+FROM docker.io/library/ubuntu:22.04
+ARG RUST_VERSION=1.100.0
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        ca-certificates curl build-essential pkg-config cmake clang libclang-dev \
+        libasound2-dev libpipewire-0.3-dev libspa-0.2-dev \
+        binutils file patchelf \
+    && rm -rf /var/lib/apt/lists/*
+# The pipewire / libspa crates need PipeWire >= 1.0 HEADERS (inline helpers,
+# newer struct fields); 22.04 ships 0.3.48. Take the headers only from 24.04's
+# signed -dev packages; the binary still links libpipewire-0.3.so.0 (stable
+# ABI, API used >= 0.3.44), so it runs on 22.04's PipeWire.
+RUN echo 'deb http://archive.ubuntu.com/ubuntu noble main universe' > /etc/apt/sources.list.d/noble.list \
+    && apt-get update && cd /tmp \
+    && apt-get download libpipewire-0.3-dev/noble libspa-0.2-dev/noble \
+    && for d in *.deb; do dpkg-deb -x "$d" /tmp/pw; done \
+    && cp -r /tmp/pw/usr/include/pipewire-0.3 /tmp/pw/usr/include/spa-0.2 /usr/include/ \
+    && rm -rf /tmp/pw /tmp/*.deb /etc/apt/sources.list.d/noble.list /var/lib/apt/lists/*
+ENV RUSTUP_HOME=/opt/rustup CARGO_HOME=/opt/cargo PATH=/opt/cargo/bin:$PATH
+RUN curl -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal \
+        --default-toolchain ${RUST_VERSION} --no-modify-path

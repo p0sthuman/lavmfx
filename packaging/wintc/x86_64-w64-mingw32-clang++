@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+exec clang++ --target=x86_64-w64-mingw32 --sysroot="$LM_SYSROOT" -resource-dir="$LM_RESOURCE" \
+    -rtlib=compiler-rt -unwindlib=libunwind -stdlib=libc++ -fuse-ld=lld -Wno-unused-command-line-argument -idirafter "$(dirname "$0")/case-include" "$@"

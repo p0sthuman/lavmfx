@@ -1,0 +1,25 @@
+[package]
+name = "lavmfx"
+description = "VJ / media server application"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+lavmfx-core.workspace = true
+lavmfx-media.workspace = true
+lavmfx-render.workspace = true
+lavmfx-io.workspace = true
+lavmfx-project.workspace = true
+lavmfx-audio.workspace = true
+eframe.workspace = true
+log.workspace = true
+env_logger.workspace = true
+anyhow.workspace = true
+directories.workspace = true
+rfd = "0.18.0"
+egui_dock = { version = "0.22", features = ["serde"] }
+serde.workspace = true
+serde_json.workspace = true
+ab_glyph = "0.2"

@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <!-- LAVMFX app icon: a heart ("love-me-FX") split into colour channels like a VJ glitch. -->
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#23232c"/>
+      <stop offset="1" stop-color="#121217"/>
+    </linearGradient>
+    <path id="heart" d="M128 206 C 60 160, 34 124, 34 92 C 34 64, 56 44, 82 44 C 102 44, 118 56, 128 72 C 138 56, 154 44, 174 44 C 200 44, 222 64, 222 92 C 222 124, 196 160, 128 206 Z"/>
+    <clipPath id="inside"><use href="#heart"/></clipPath>
+  </defs>
+  <rect x="8" y="8" width="240" height="240" rx="52" fill="url(#bg)"/>
+  <!-- mapping grid inside the heart -->
+  <g stroke="#2ec4a5" stroke-width="3" opacity="0.45" clip-path="url(#inside)">
+    <line x1="86" y1="40" x2="86" y2="210"/>
+    <line x1="128" y1="40" x2="128" y2="210"/>
+    <line x1="170" y1="40" x2="170" y2="210"/>
+    <line x1="20" y1="110" x2="236" y2="110"/>
+    <line x1="20" y1="150" x2="236" y2="150"/>
+  </g>
+  <g fill="none" stroke-width="14" stroke-linejoin="round">
+    <use href="#heart" stroke="#e0407a" transform="translate(-9 3)" opacity="0.9"/>
+    <use href="#heart" stroke="#3a8bff" transform="translate(9 -3)" opacity="0.9"/>
+    <use href="#heart" stroke="#2ec4a5"/>
+  </g>
+</svg>

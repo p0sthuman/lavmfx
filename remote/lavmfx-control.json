@@ -1,0 +1,3251 @@
+{
+ "createdWith": "Open Stage Control",
+ "version": "1.31.2",
+ "type": "session",
+ "content": {
+  "type": "root",
+  "colorBg": "#111111",
+  "tabs": [
+   {
+    "type": "tab",
+    "id": "tab_clips",
+    "label": "Clips",
+    "layout": "vertical",
+    "widgets": [
+     {
+      "type": "panel",
+      "layout": "horizontal",
+      "widgets": [
+       {
+        "type": "button",
+        "label": "TAP",
+        "address": "/composition/tempocontroller/tempotap",
+        "mode": "tap",
+        "on": 1,
+        "off": 0,
+        "width": 110,
+        "colorWidget": "#62e2ba"
+       },
+       {
+        "type": "text",
+        "label": false,
+        "value": "#{Math.round((OSC{/composition/tempocontroller/tempo, 0.2083}*480+20)*10)/10}",
+        "width": 90,
+        "css": "font-size:150%"
+       },
+       {
+        "type": "button",
+        "label": "−1",
+        "address": "/composition/tempocontroller/tempo",
+        "mode": "tap",
+        "on": "#{(Math.round((OSC{/composition/tempocontroller/tempo, 0.2083}*480+20))-1-20)/480}",
+        "off": 0,
+        "width": 60
+       },
+       {
+        "type": "button",
+        "label": "+1",
+        "address": "/composition/tempocontroller/tempo",
+        "mode": "tap",
+        "on": "#{(Math.round((OSC{/composition/tempocontroller/tempo, 0.2083}*480+20))+1-20)/480}",
+        "off": 0,
+        "width": 60
+       },
+       {
+        "type": "button",
+        "label": "RESYNC",
+        "address": "/composition/tempocontroller/resync",
+        "mode": "tap",
+        "on": 1,
+        "off": 0,
+        "width": 110
+       },
+       {
+        "type": "button",
+        "label": "◀ COL",
+        "address": "/composition/connectprevcolumn",
+        "mode": "tap",
+        "on": 1,
+        "off": 0,
+        "width": 90
+       },
+       {
+        "type": "button",
+        "label": "COL ▶",
+        "address": "/composition/connectnextcolumn",
+        "mode": "tap",
+        "on": 1,
+        "off": 0,
+        "width": 90
+       },
+       {
+        "type": "button",
+        "label": "CLEAR ALL",
+        "address": "/composition/disconnectall",
+        "mode": "tap",
+        "on": 1,
+        "off": 0,
+        "width": 120,
+        "colorWidget": "#c0504d"
+       },
+       {
+        "type": "fader",
+        "label": "MASTER",
+        "address": "/composition/master",
+        "range": {
+         "min": 0,
+         "max": 1
+        },
+        "colorWidget": "#62e2ba",
+        "doubleTap": true,
+        "horizontal": true,
+        "expand": true
+       }
+      ],
+      "padding": 2,
+      "innerPadding": false,
+      "height": 70
+     },
+     {
+      "type": "panel",
+      "layout": "horizontal",
+      "widgets": [
+       {
+        "type": "panel",
+        "layout": "vertical",
+        "widgets": [
+         {
+          "type": "panel",
+          "layout": "horizontal",
+          "widgets": [
+           {
+            "type": "button",
+            "label": "◀",
+            "address": "/lavmfx/grid/scroll",
+            "mode": "tap",
+            "on": 1,
+            "off": 0,
+            "preArgs": [
+             -8,
+             0
+            ],
+            "expand": true
+           },
+           {
+            "type": "button",
+            "label": "▶",
+            "address": "/lavmfx/grid/scroll",
+            "mode": "tap",
+            "on": 1,
+            "off": 0,
+            "preArgs": [
+             8,
+             0
+            ],
+            "expand": true
+           },
+           {
+            "type": "button",
+            "label": "▲",
+            "address": "/lavmfx/grid/scroll",
+            "mode": "tap",
+            "on": 1,
+            "off": 0,
+            "preArgs": [
+             0,
+             4
+            ],
+            "expand": true
+           },
+           {
+            "type": "button",
+            "label": "▼",
+            "address": "/lavmfx/grid/scroll",
+            "mode": "tap",
+            "on": 1,
+            "off": 0,
+            "preArgs": [
+             0,
+             -4
+            ],
+            "expand": true
+           }
+          ],
+          "padding": 2,
+          "innerPadding": false,
+          "expand": true
+         },
+         {
+          "type": "text",
+          "label": false,
+          "value": "",
+          "address": "/lavmfx/grid/pos",
+          "height": 18,
+          "css": "font-size:75%"
+         }
+        ],
+        "padding": 2,
+        "innerPadding": false,
+        "width": 170
+       },
+       {
+        "type": "button",
+        "label": "#{OSC{/lavmfx/grid/col/1/name} || '1'}",
+        "address": "/lavmfx/grid/col/1/connect",
+        "mode": "tap",
+        "on": 1,
+        "off": 0,
+        "expand": true
+       },
+       {
+        "type": "button",
+        "label": "#{OSC{/lavmfx/grid/col/2/name} || '2'}",
+        "address": "/lavmfx/grid/col/2/connect",
+        "mode": "tap",
+        "on": 1,
+        "off": 0,
+        "expand": true
+       },
+       {
+        "type": "button",
+        "label": "#{OSC{/lavmfx/grid/col/3/name} || '3'}",
+        "address": "/lavmfx/grid/col/3/connect",
+        "mode": "tap",
+        "on": 1,
+        "off": 0,
+        "expand": true
+       },
+       {
+        "type": "button",
+        "label": "#{OSC{/lavmfx/grid/col/4/name} || '4'}",
+        "address": "/lavmfx/grid/col/4/connect",
+        "mode": "tap",
+        "on": 1,
+        "off": 0,
+        "expand": true
+       },
+       {
+        "type": "button",
+        "label": "#{OSC{/lavmfx/grid/col/5/name} || '5'}",
+        "address": "/lavmfx/grid/col/5/connect",
+        "mode": "tap",
+        "on": 1,
+        "off": 0,
+        "expand": true
+       },
+       {
+        "type": "button",
+        "label": "#{OSC{/lavmfx/grid/col/6/name} || '6'}",
+        "address": "/lavmfx/grid/col/6/connect",
+        "mode": "tap",
+        "on": 1,
+        "off": 0,
+        "expand": true
+       },
+       {
+        "type": "button",
+        "label": "#{OSC{/lavmfx/grid/col/7/name} || '7'}",
+        "address": "/lavmfx/grid/col/7/connect",
+        "mode": "tap",
+        "on": 1,
+        "off": 0,
+        "expand": true
+       },
+       {
+        "type": "button",
+        "label": "#{OSC{/lavmfx/grid/col/8/name} || '8'}",
+        "address": "/lavmfx/grid/col/8/connect",
+        "mode": "tap",
+        "on": 1,
+        "off": 0,
+        "expand": true
+       }
+      ],
+      "padding": 2,
+      "innerPadding": false,
+      "height": 50
+     },
+     {
+      "type": "panel",
+      "layout": "vertical",
+      "widgets": [
+       {
+        "type": "panel",
+        "layout": "horizontal",
+        "widgets": [
+         {
+          "type": "panel",
+          "layout": "horizontal",
+          "widgets": [
+           {
+            "type": "panel",
+            "layout": "vertical",
+            "widgets": [
+             {
+              "type": "text",
+              "label": false,
+              "value": "",
+              "address": "/lavmfx/grid/row/4/name",
+              "expand": true
+             },
+             {
+              "type": "panel",
+              "layout": "horizontal",
+              "widgets": [
+               {
+                "type": "button",
+                "label": "B",
+                "address": "/lavmfx/grid/row/4/bypassed",
+                "mode": "toggle",
+                "on": 1,
+                "off": 0,
+                "colorWidget": "#c0504d",
+                "expand": true
+               },
+               {
+                "type": "button",
+                "label": "S",
+                "address": "/lavmfx/grid/row/4/solo",
+                "mode": "toggle",
+                "on": 1,
+                "off": 0,
+                "colorWidget": "#62e2ba",
+                "expand": true
+               },
+               {
+                "type": "button",
+                "label": "X",
+                "address": "/lavmfx/grid/row/4/clear",
+                "mode": "tap",
+                "on": 1,
+                "off": 0,
+                "expand": true
+               }
+              ],
+              "padding": 2,
+              "innerPadding": false,
+              "expand": true
+             }
+            ],
+            "padding": 2,
+            "innerPadding": false,
+            "expand": true
+           },
+           {
+            "type": "fader",
+            "label": false,
+            "address": "/lavmfx/grid/row/4/master",
+            "range": {
+             "min": 0,
+             "max": 1
+            },
+            "colorWidget": "#62e2ba",
+            "doubleTap": true,
+            "width": 34
+           }
+          ],
+          "padding": 2,
+          "innerPadding": false,
+          "width": 170
+         },
+         {
+          "type": "button",
+          "label": "#{OSC{/lavmfx/grid/row/4/clip/1/name} || ''}",
+          "address": "/lavmfx/grid/row/4/clip/1/connect",
+          "mode": "tap",
+          "on": 1,
+          "off": 0,
+          "expand": true,
+          "wrap": true,
+          "colorWidget": "#{OSC{/lavmfx/grid/row/4/clip/1/connected, 0} == 3 ? '#62e2ba' : OSC{/lavmfx/grid/row/4/clip/1/connected, 0} == 0 ? '#262626' : '#4a4a4a'}",
+          "alphaFillOff": "#{OSC{/lavmfx/grid/row/4/clip/1/connected, 0} == 3 ? 0.85 : 0.15}",
+          "colorText": "#{OSC{/lavmfx/grid/row/4/clip/1/connected, 0} == 3 ? '#000000' : 'auto'}"
+         },
+         {
+          "type": "button",
+          "label": "#{OSC{/lavmfx/grid/row/4/clip/2/name} || ''}",
+          "address": "/lavmfx/grid/row/4/clip/2/connect",
+          "mode": "tap",
+          "on": 1,
+          "off": 0,
+          "expand": true,
+          "wrap": true,
+          "colorWidget": "#{OSC{/lavmfx/grid/row/4/clip/2/connected, 0} == 3 ? '#62e2ba' : OSC{/lavmfx/grid/row/4/clip/2/connected, 0} == 0 ? '#262626' : '#4a4a4a'}",
+          "alphaFillOff": "#{OSC{/lavmfx/grid/row/4/clip/2/connected, 0} == 3 ? 0.85 : 0.15}",
+          "colorText": "#{OSC{/lavmfx/grid/row/4/clip/2/connected, 0} == 3 ? '#000000' : 'auto'}"
+         },
+         {
+          "type": "button",
+          "label": "#{OSC{/lavmfx/grid/row/4/clip/3/name} || ''}",
+          "address": "/lavmfx/grid/row/4/clip/3/connect",
+          "mode": "tap",
+          "on": 1,
+          "off": 0,
+          "expand": true,
+          "wrap": true,
+          "colorWidget": "#{OSC{/lavmfx/grid/row/4/clip/3/connected, 0} == 3 ? '#62e2ba' : OSC{/lavmfx/grid/row/4/clip/3/connected, 0} == 0 ? '#262626' : '#4a4a4a'}",
+          "alphaFillOff": "#{OSC{/lavmfx/grid/row/4/clip/3/connected, 0} == 3 ? 0.85 : 0.15}",
+          "colorText": "#{OSC{/lavmfx/grid/row/4/clip/3/connected, 0} == 3 ? '#000000' : 'auto'}"
+         },
+         {
+          "type": "button",
+          "label": "#{OSC{/lavmfx/grid/row/4/clip/4/name} || ''}",
+          "address": "/lavmfx/grid/row/4/clip/4/connect",
+          "mode": "tap",
+          "on": 1,
+          "off": 0,
+          "expand": true,
+          "wrap": true,
+          "colorWidget": "#{OSC{/lavmfx/grid/row/4/clip/4/connected, 0} == 3 ? '#62e2ba' : OSC{/lavmfx/grid/row/4/clip/4/connected, 0} == 0 ? '#262626' : '#4a4a4a'}",
+          "alphaFillOff": "#{OSC{/lavmfx/grid/row/4/clip/4/connected, 0} == 3 ? 0.85 : 0.15}",
+          "colorText": "#{OSC{/lavmfx/grid/row/4/clip/4/connected, 0} == 3 ? '#000000' : 'auto'}"
+         },
+         {
+          "type": "button",
+          "label": "#{OSC{/lavmfx/grid/row/4/clip/5/name} || ''}",
+          "address": "/lavmfx/grid/row/4/clip/5/connect",
+          "mode": "tap",
+          "on": 1,
+          "off": 0,
+          "expand": true,
+          "wrap": true,
+          "colorWidget": "#{OSC{/lavmfx/grid/row/4/clip/5/connected, 0} == 3 ? '#62e2ba' : OSC{/lavmfx/grid/row/4/clip/5/connected, 0} == 0 ? '#262626' : '#4a4a4a'}",
+          "alphaFillOff": "#{OSC{/lavmfx/grid/row/4/clip/5/connected, 0} == 3 ? 0.85 : 0.15}",
+          "colorText": "#{OSC{/lavmfx/grid/row/4/clip/5/connected, 0} == 3 ? '#000000' : 'auto'}"
+         },
+         {
+          "type": "button",
+          "label": "#{OSC{/lavmfx/grid/row/4/clip/6/name} || ''}",
+          "address": "/lavmfx/grid/row/4/clip/6/connect",
+          "mode": "tap",
+          "on": 1,
+          "off": 0,
+          "expand": true,
+          "wrap": true,
+          "colorWidget": "#{OSC{/lavmfx/grid/row/4/clip/6/connected, 0} == 3 ? '#62e2ba' : OSC{/lavmfx/grid/row/4/clip/6/connected, 0} == 0 ? '#262626' : '#4a4a4a'}",
+          "alphaFillOff": "#{OSC{/lavmfx/grid/row/4/clip/6/connected, 0} == 3 ? 0.85 : 0.15}",
+          "colorText": "#{OSC{/lavmfx/grid/row/4/clip/6/connected, 0} == 3 ? '#000000' : 'auto'}"
+         },
+         {
+          "type": "button",
+          "label": "#{OSC{/lavmfx/grid/row/4/clip/7/name} || ''}",
+          "address": "/lavmfx/grid/row/4/clip/7/connect",
+          "mode": "tap",
+          "on": 1,
+          "off": 0,
+          "expand": true,
+          "wrap": true,
+          "colorWidget": "#{OSC{/lavmfx/grid/row/4/clip/7/connected, 0} == 3 ? '#62e2ba' : OSC{/lavmfx/grid/row/4/clip/7/connected, 0} == 0 ? '#262626' : '#4a4a4a'}",
+          "alphaFillOff": "#{OSC{/lavmfx/grid/row/4/clip/7/connected, 0} == 3 ? 0.85 : 0.15}",
+          "colorText": "#{OSC{/lavmfx/grid/row/4/clip/7/connected, 0} == 3 ? '#000000' : 'auto'}"
+         },
+         {
+          "type": "button",
+          "label": "#{OSC{/lavmfx/grid/row/4/clip/8/name} || ''}",
+          "address": "/lavmfx/grid/row/4/clip/8/connect",
+          "mode": "tap",
+          "on": 1,
+          "off": 0,
+          "expand": true,
+          "wrap": true,
+          "colorWidget": "#{OSC{/lavmfx/grid/row/4/clip/8/connected, 0} == 3 ? '#62e2ba' : OSC{/lavmfx/grid/row/4/clip/8/connected, 0} == 0 ? '#262626' : '#4a4a4a'}",
+          "alphaFillOff": "#{OSC{/lavmfx/grid/row/4/clip/8/connected, 0} == 3 ? 0.85 : 0.15}",
+          "colorText": "#{OSC{/lavmfx/grid/row/4/clip/8/connected, 0} == 3 ? '#000000' : 'auto'}"
+         }
+        ],
+        "padding": 2,
+        "innerPadding": false,
+        "expand": true
+       },
+       {
+        "type": "panel",
+        "layout": "horizontal",
+        "widgets": [
+         {
+          "type": "panel",
+          "layout": "horizontal",
+          "widgets": [
+           {
+            "type": "panel",
+            "layout": "vertical",
+            "widgets": [
+             {
+              "type": "text",
+              "label": false,
+              "value": "",
+              "address": "/lavmfx/grid/row/3/name",
+              "expand": true
+             },
+             {
+              "type": "panel",
+              "layout": "horizontal",
+              "widgets": [
+               {
+                "type": "button",
+                "label": "B",
+                "address": "/lavmfx/grid/row/3/bypassed",
+                "mode": "toggle",
+                "on": 1,
+                "off": 0,
+                "colorWidget": "#c0504d",
+                "expand": true
+               },
+               {
+                "type": "button",
+                "label": "S",
+                "address": "/lavmfx/grid/row/3/solo",
+                "mode": "toggle",
+                "on": 1,
+                "off": 0,
+                "colorWidget": "#62e2ba",
+                "expand": true
+               },
+               {
+                "type": "button",
+                "label": "X",
+                "address": "/lavmfx/grid/row/3/clear",
+                "mode": "tap",
+                "on": 1,
+                "off": 0,
+                "expand": true
+               }
+              ],
+              "padding": 2,
+              "innerPadding": false,
+              "expand": true
+             }
+            ],
+            "padding": 2,
+            "innerPadding": false,
+            "expand": true
+           },
+           {
+            "type": "fader",
+            "label": false,
+            "address": "/lavmfx/grid/row/3/master",
+            "range": {
+             "min": 0,
+             "max": 1
+            },
+            "colorWidget": "#62e2ba",
+            "doubleTap": true,
+            "width": 34
+           }
+          ],
+          "padding": 2,
+          "innerPadding": false,
+          "width": 170
+         },
+         {
+          "type": "button",
+          "label": "#{OSC{/lavmfx/grid/row/3/clip/1/name} || ''}",
+          "address": "/lavmfx/grid/row/3/clip/1/connect",
+          "mode": "tap",
+          "on": 1,
+          "off": 0,
+          "expand": true,
+          "wrap": true,
+          "colorWidget": "#{OSC{/lavmfx/grid/row/3/clip/1/connected, 0} == 3 ? '#62e2ba' : OSC{/lavmfx/grid/row/3/clip/1/connected, 0} == 0 ? '#262626' : '#4a4a4a'}",
+          "alphaFillOff": "#{OSC{/lavmfx/grid/row/3/clip/1/connected, 0} == 3 ? 0.85 : 0.15}",
+          "colorText": "#{OSC{/lavmfx/grid/row/3/clip/1/connected, 0} == 3 ? '#000000' : 'auto'}"
+         },
+         {
+          "type": "button",
+          "label": "#{OSC{/lavmfx/grid/row/3/clip/2/name} || ''}",
+          "address": "/lavmfx/grid/row/3/clip/2/connect",
+          "mode": "tap",
+          "on": 1,
+          "off": 0,
+          "expand": true,
+          "wrap": true,
+          "colorWidget": "#{OSC{/lavmfx/grid/row/3/clip/2/connected, 0} == 3 ? '#62e2ba' : OSC{/lavmfx/grid/row/3/clip/2/connected, 0} == 0 ? '#262626' : '#4a4a4a'}",
+          "alphaFillOff": "#{OSC{/lavmfx/grid/row/3/clip/2/connected, 0} == 3 ? 0.85 : 0.15}",
+          "colorText": "#{OSC{/lavmfx/grid/row/3/clip/2/connected, 0} == 3 ? '#000000' : 'auto'}"
+         },
+         {
+          "type": "button",
+          "label": "#{OSC{/lavmfx/grid/row/3/clip/3/name} || ''}",
+          "address": "/lavmfx/grid/row/3/clip/3/connect",
+          "mode": "tap",
+          "on": 1,
+          "off": 0,
+          "expand": true,
+          "wrap": true,
+          "colorWidget": "#{OSC{/lavmfx/grid/row/3/clip/3/connected, 0} == 3 ? '#62e2ba' : OSC{/lavmfx/grid/row/3/clip/3/connected, 0} == 0 ? '#262626' : '#4a4a4a'}",
+          "alphaFillOff": "#{OSC{/lavmfx/grid/row/3/clip/3/connected, 0} == 3 ? 0.85 : 0.15}",
+          "colorText": "#{OSC{/lavmfx/grid/row/3/clip/3/connected, 0} == 3 ? '#000000' : 'auto'}"
+         },
+         {
+          "type": "button",
+          "label": "#{OSC{/lavmfx/grid/row/3/clip/4/name} || ''}",
+          "address": "/lavmfx/grid/row/3/clip/4/connect",
+          "mode": "tap",
+          "on": 1,
+          "off": 0,
+          "expand": true,
+          "wrap": true,
+          "colorWidget": "#{OSC{/lavmfx/grid/row/3/clip/4/connected, 0} == 3 ? '#62e2ba' : OSC{/lavmfx/grid/row/3/clip/4/connected, 0} == 0 ? '#262626' : '#4a4a4a'}",
+          "alphaFillOff": "#{OSC{/lavmfx/grid/row/3/clip/4/connected, 0} == 3 ? 0.85 : 0.15}",
+          "colorText": "#{OSC{/lavmfx/grid/row/3/clip/4/connected, 0} == 3 ? '#000000' : 'auto'}"
+         },
+         {
+          "type": "button",
+          "label": "#{OSC{/lavmfx/grid/row/3/clip/5/name} || ''}",
+          "address": "/lavmfx/grid/row/3/clip/5/connect",
+          "mode": "tap",
+          "on": 1,
+          "off": 0,
+          "expand": true,
+          "wrap": true,
+          "colorWidget": "#{OSC{/lavmfx/grid/row/3/clip/5/connected, 0} == 3 ? '#62e2ba' : OSC{/lavmfx/grid/row/3/clip/5/connected, 0} == 0 ? '#262626' : '#4a4a4a'}",
+          "alphaFillOff": "#{OSC{/lavmfx/grid/row/3/clip/5/connected, 0} == 3 ? 0.85 : 0.15}",
+          "colorText": "#{OSC{/lavmfx/grid/row/3/clip/5/connected, 0} == 3 ? '#000000' : 'auto'}"
+         },
+         {
+          "type": "button",
+          "label": "#{OSC{/lavmfx/grid/row/3/clip/6/name} || ''}",
+          "address": "/lavmfx/grid/row/3/clip/6/connect",
+          "mode": "tap",
+          "on": 1,
+          "off": 0,
+          "expand": true,
+          "wrap": true,
+          "colorWidget": "#{OSC{/lavmfx/grid/row/3/clip/6/connected, 0} == 3 ? '#62e2ba' : OSC{/lavmfx/grid/row/3/clip/6/connected, 0} == 0 ? '#262626' : '#4a4a4a'}",
+          "alphaFillOff": "#{OSC{/lavmfx/grid/row/3/clip/6/connected, 0} == 3 ? 0.85 : 0.15}",
+          "colorText": "#{OSC{/lavmfx/grid/row/3/clip/6/connected, 0} == 3 ? '#000000' : 'auto'}"
+         },
+         {
+          "type": "button",
+          "label": "#{OSC{/lavmfx/grid/row/3/clip/7/name} || ''}",
+          "address": "/lavmfx/grid/row/3/clip/7/connect",
+          "mode": "tap",
+          "on": 1,
+          "off": 0,
+          "expand": true,
+          "wrap": true,
+          "colorWidget": "#{OSC{/lavmfx/grid/row/3/clip/7/connected, 0} == 3 ? '#62e2ba' : OSC{/lavmfx/grid/row/3/clip/7/connected, 0} == 0 ? '#262626' : '#4a4a4a'}",
+          "alphaFillOff": "#{OSC{/lavmfx/grid/row/3/clip/7/connected, 0} == 3 ? 0.85 : 0.15}",
+          "colorText": "#{OSC{/lavmfx/grid/row/3/clip/7/connected, 0} == 3 ? '#000000' : 'auto'}"
+         },
+         {
+          "type": "button",
+          "label": "#{OSC{/lavmfx/grid/row/3/clip/8/name} || ''}",
+          "address": "/lavmfx/grid/row/3/clip/8/connect",
+          "mode": "tap",
+          "on": 1,
+          "off": 0,
+          "expand": true,
+          "wrap": true,
+          "colorWidget": "#{OSC{/lavmfx/grid/row/3/clip/8/connected, 0} == 3 ? '#62e2ba' : OSC{/lavmfx/grid/row/3/clip/8/connected, 0} == 0 ? '#262626' : '#4a4a4a'}",
+          "alphaFillOff": "#{OSC{/lavmfx/grid/row/3/clip/8/connected, 0} == 3 ? 0.85 : 0.15}",
+          "colorText": "#{OSC{/lavmfx/grid/row/3/clip/8/connected, 0} == 3 ? '#000000' : 'auto'}"
+         }
+        ],
+        "padding": 2,
+        "innerPadding": false,
+        "expand": true
+       },
+       {
+        "type": "panel",
+        "layout": "horizontal",
+        "widgets": [
+         {
+          "type": "panel",
+          "layout": "horizontal",
+          "widgets": [
+           {
+            "type": "panel",
+            "layout": "vertical",
+            "widgets": [
+             {
+              "type": "text",
+              "label": false,
+              "value": "",
+              "address": "/lavmfx/grid/row/2/name",
+              "expand": true
+             },
+             {
+              "type": "panel",
+              "layout": "horizontal",
+              "widgets": [
+               {
+                "type": "button",
+                "label": "B",
+                "address": "/lavmfx/grid/row/2/bypassed",
+                "mode": "toggle",
+                "on": 1,
+                "off": 0,
+                "colorWidget": "#c0504d",
+                "expand": true
+               },
+               {
+                "type": "button",
+                "label": "S",
+                "address": "/lavmfx/grid/row/2/solo",
+                "mode": "toggle",
+                "on": 1,
+                "off": 0,
+                "colorWidget": "#62e2ba",
+                "expand": true
+               },
+               {
+                "type": "button",
+                "label": "X",
+                "address": "/lavmfx/grid/row/2/clear",
+                "mode": "tap",
+                "on": 1,
+                "off": 0,
+                "expand": true
+               }
+              ],
+              "padding": 2,
+              "innerPadding": false,
+              "expand": true
+             }
+            ],
+            "padding": 2,
+            "innerPadding": false,
+            "expand": true
+           },
+           {
+            "type": "fader",
+            "label": false,
+            "address": "/lavmfx/grid/row/2/master",
+            "range": {
+             "min": 0,
+             "max": 1
+            },
+            "colorWidget": "#62e2ba",
+            "doubleTap": true,
+            "width": 34
+           }
+          ],
+          "padding": 2,
+          "innerPadding": false,
+          "width": 170
+         },
+         {
+          "type": "button",
+          "label": "#{OSC{/lavmfx/grid/row/2/clip/1/name} || ''}",
+          "address": "/lavmfx/grid/row/2/clip/1/connect",
+          "mode": "tap",
+          "on": 1,
+          "off": 0,
+          "expand": true,
+          "wrap": true,
+          "colorWidget": "#{OSC{/lavmfx/grid/row/2/clip/1/connected, 0} == 3 ? '#62e2ba' : OSC{/lavmfx/grid/row/2/clip/1/connected, 0} == 0 ? '#262626' : '#4a4a4a'}",
+          "alphaFillOff": "#{OSC{/lavmfx/grid/row/2/clip/1/connected, 0} == 3 ? 0.85 : 0.15}",
+          "colorText": "#{OSC{/lavmfx/grid/row/2/clip/1/connected, 0} == 3 ? '#000000' : 'auto'}"
+         },
+         {
+          "type": "button",
+          "label": "#{OSC{/lavmfx/grid/row/2/clip/2/name} || ''}",
+          "address": "/lavmfx/grid/row/2/clip/2/connect",
+          "mode": "tap",
+          "on": 1,
+          "off": 0,
+          "expand": true,
+          "wrap": true,
+          "colorWidget": "#{OSC{/lavmfx/grid/row/2/clip/2/connected, 0} == 3 ? '#62e2ba' : OSC{/lavmfx/grid/row/2/clip/2/connected, 0} == 0 ? '#262626' : '#4a4a4a'}",
+          "alphaFillOff": "#{OSC{/lavmfx/grid/row/2/clip/2/connected, 0} == 3 ? 0.85 : 0.15}",
+          "colorText": "#{OSC{/lavmfx/grid/row/2/clip/2/connected, 0} == 3 ? '#000000' : 'auto'}"
+         },
+         {
+          "type": "button",
+          "label": "#{OSC{/lavmfx/grid/row/2/clip/3/name} || ''}",
+          "address": "/lavmfx/grid/row/2/clip/3/connect",
+          "mode": "tap",
+          "on": 1,
+          "off": 0,
+          "expand": true,
+          "wrap": true,
+          "colorWidget": "#{OSC{/lavmfx/grid/row/2/clip/3/connected, 0} == 3 ? '#62e2ba' : OSC{/lavmfx/grid/row/2/clip/3/connected, 0} == 0 ? '#262626' : '#4a4a4a'}",
+          "alphaFillOff": "#{OSC{/lavmfx/grid/row/2/clip/3/connected, 0} == 3 ? 0.85 : 0.15}",
+          "colorText": "#{OSC{/lavmfx/grid/row/2/clip/3/connected, 0} == 3 ? '#000000' : 'auto'}"
+         },
+         {
+          "type": "button",
+          "label": "#{OSC{/lavmfx/grid/row/2/clip/4/name} || ''}",
+          "address": "/lavmfx/grid/row/2/clip/4/connect",
+          "mode": "tap",
+          "on": 1,
+          "off": 0,
+          "expand": true,
+          "wrap": true,
+          "colorWidget": "#{OSC{/lavmfx/grid/row/2/clip/4/connected, 0} == 3 ? '#62e2ba' : OSC{/lavmfx/grid/row/2/clip/4/connected, 0} == 0 ? '#262626' : '#4a4a4a'}",
+          "alphaFillOff": "#{OSC{/lavmfx/grid/row/2/clip/4/connected, 0} == 3 ? 0.85 : 0.15}",
+          "colorText": "#{OSC{/lavmfx/grid/row/2/clip/4/connected, 0} == 3 ? '#000000' : 'auto'}"
+         },
+         {
+          "type": "button",
+          "label": "#{OSC{/lavmfx/grid/row/2/clip/5/name} || ''}",
+          "address": "/lavmfx/grid/row/2/clip/5/connect",
+          "mode": "tap",
+          "on": 1,
+          "off": 0,
+          "expand": true,
+          "wrap": true,
+          "colorWidget": "#{OSC{/lavmfx/grid/row/2/clip/5/connected, 0} == 3 ? '#62e2ba' : OSC{/lavmfx/grid/row/2/clip/5/connected, 0} == 0 ? '#262626' : '#4a4a4a'}",
+          "alphaFillOff": "#{OSC{/lavmfx/grid/row/2/clip/5/connected, 0} == 3 ? 0.85 : 0.15}",
+          "colorText": "#{OSC{/lavmfx/grid/row/2/clip/5/connected, 0} == 3 ? '#000000' : 'auto'}"
+         },
+         {
+          "type": "button",
+          "label": "#{OSC{/lavmfx/grid/row/2/clip/6/name} || ''}",
+          "address": "/lavmfx/grid/row/2/clip/6/connect",
+          "mode": "tap",
+          "on": 1,
+          "off": 0,
+          "expand": true,
+          "wrap": true,
+          "colorWidget": "#{OSC{/lavmfx/grid/row/2/clip/6/connected, 0} == 3 ? '#62e2ba' : OSC{/lavmfx/grid/row/2/clip/6/connected, 0} == 0 ? '#262626' : '#4a4a4a'}",
+          "alphaFillOff": "#{OSC{/lavmfx/grid/row/2/clip/6/connected, 0} == 3 ? 0.85 : 0.15}",
+          "colorText": "#{OSC{/lavmfx/grid/row/2/clip/6/connected, 0} == 3 ? '#000000' : 'auto'}"
+         },
+         {
+          "type": "button",
+          "label": "#{OSC{/lavmfx/grid/row/2/clip/7/name} || ''}",
+          "address": "/lavmfx/grid/row/2/clip/7/connect",
+          "mode": "tap",
+          "on": 1,
+          "off": 0,
+          "expand": true,
+          "wrap": true,
+          "colorWidget": "#{OSC{/lavmfx/grid/row/2/clip/7/connected, 0} == 3 ? '#62e2ba' : OSC{/lavmfx/grid/row/2/clip/7/connected, 0} == 0 ? '#262626' : '#4a4a4a'}",
+          "alphaFillOff": "#{OSC{/lavmfx/grid/row/2/clip/7/connected, 0} == 3 ? 0.85 : 0.15}",
+          "colorText": "#{OSC{/lavmfx/grid/row/2/clip/7/connected, 0} == 3 ? '#000000' : 'auto'}"
+         },
+         {
+          "type": "button",
+          "label": "#{OSC{/lavmfx/grid/row/2/clip/8/name} || ''}",
+          "address": "/lavmfx/grid/row/2/clip/8/connect",
+          "mode": "tap",
+          "on": 1,
+          "off": 0,
+          "expand": true,
+          "wrap": true,
+          "colorWidget": "#{OSC{/lavmfx/grid/row/2/clip/8/connected, 0} == 3 ? '#62e2ba' : OSC{/lavmfx/grid/row/2/clip/8/connected, 0} == 0 ? '#262626' : '#4a4a4a'}",
+          "alphaFillOff": "#{OSC{/lavmfx/grid/row/2/clip/8/connected, 0} == 3 ? 0.85 : 0.15}",
+          "colorText": "#{OSC{/lavmfx/grid/row/2/clip/8/connected, 0} == 3 ? '#000000' : 'auto'}"
+         }
+        ],
+        "padding": 2,
+        "innerPadding": false,
+        "expand": true
+       },
+       {
+        "type": "panel",
+        "layout": "horizontal",
+        "widgets": [
+         {
+          "type": "panel",
+          "layout": "horizontal",
+          "widgets": [
+           {
+            "type": "panel",
+            "layout": "vertical",
+            "widgets": [
+             {
+              "type": "text",
+              "label": false,
+              "value": "",
+              "address": "/lavmfx/grid/row/1/name",
+              "expand": true
+             },
+             {
+              "type": "panel",
+              "layout": "horizontal",
+              "widgets": [
+               {
+                "type": "button",
+                "label": "B",
+                "address": "/lavmfx/grid/row/1/bypassed",
+                "mode": "toggle",
+                "on": 1,
+                "off": 0,
+                "colorWidget": "#c0504d",
+                "expand": true
+               },
+               {
+                "type": "button",
+                "label": "S",
+                "address": "/lavmfx/grid/row/1/solo",
+                "mode": "toggle",
+                "on": 1,
+                "off": 0,
+                "colorWidget": "#62e2ba",
+                "expand": true
+               },
+               {
+                "type": "button",
+                "label": "X",
+                "address": "/lavmfx/grid/row/1/clear",
+                "mode": "tap",
+                "on": 1,
+                "off": 0,
+                "expand": true
+               }
+              ],
+              "padding": 2,
+              "innerPadding": false,
+              "expand": true
+             }
+            ],
+            "padding": 2,
+            "innerPadding": false,
+            "expand": true
+           },
+           {
+            "type": "fader",
+            "label": false,
+            "address": "/lavmfx/grid/row/1/master",
+            "range": {
+             "min": 0,
+             "max": 1
+            },
+            "colorWidget": "#62e2ba",
+            "doubleTap": true,
+            "width": 34
+           }
+          ],
+          "padding": 2,
+          "innerPadding": false,
+          "width": 170
+         },
+         {
+          "type": "button",
+          "label": "#{OSC{/lavmfx/grid/row/1/clip/1/name} || ''}",
+          "address": "/lavmfx/grid/row/1/clip/1/connect",
+          "mode": "tap",
+          "on": 1,
+          "off": 0,
+          "expand": true,
+          "wrap": true,
+          "colorWidget": "#{OSC{/lavmfx/grid/row/1/clip/1/connected, 0} == 3 ? '#62e2ba' : OSC{/lavmfx/grid/row/1/clip/1/connected, 0} == 0 ? '#262626' : '#4a4a4a'}",
+          "alphaFillOff": "#{OSC{/lavmfx/grid/row/1/clip/1/connected, 0} == 3 ? 0.85 : 0.15}",
+          "colorText": "#{OSC{/lavmfx/grid/row/1/clip/1/connected, 0} == 3 ? '#000000' : 'auto'}"
+         },
+         {
+          "type": "button",
+          "label": "#{OSC{/lavmfx/grid/row/1/clip/2/name} || ''}",
+          "address": "/lavmfx/grid/row/1/clip/2/connect",
+          "mode": "tap",
+          "on": 1,
+          "off": 0,
+          "expand": true,
+          "wrap": true,
+          "colorWidget": "#{OSC{/lavmfx/grid/row/1/clip/2/connected, 0} == 3 ? '#62e2ba' : OSC{/lavmfx/grid/row/1/clip/2/connected, 0} == 0 ? '#262626' : '#4a4a4a'}",
+          "alphaFillOff": "#{OSC{/lavmfx/grid/row/1/clip/2/connected, 0} == 3 ? 0.85 : 0.15}",
+          "colorText": "#{OSC{/lavmfx/grid/row/1/clip/2/connected, 0} == 3 ? '#000000' : 'auto'}"
+         },
+         {
+          "type": "button",
+          "label": "#{OSC{/lavmfx/grid/row/1/clip/3/name} || ''}",
+          "address": "/lavmfx/grid/row/1/clip/3/connect",
+          "mode": "tap",
+          "on": 1,
+          "off": 0,
+          "expand": true,
+          "wrap": true,
+          "colorWidget": "#{OSC{/lavmfx/grid/row/1/clip/3/connected, 0} == 3 ? '#62e2ba' : OSC{/lavmfx/grid/row/1/clip/3/connected, 0} == 0 ? '#262626' : '#4a4a4a'}",
+          "alphaFillOff": "#{OSC{/lavmfx/grid/row/1/clip/3/connected, 0} == 3 ? 0.85 : 0.15}",
+          "colorText": "#{OSC{/lavmfx/grid/row/1/clip/3/connected, 0} == 3 ? '#000000' : 'auto'}"
+         },
+         {
+          "type": "button",
+          "label": "#{OSC{/lavmfx/grid/row/1/clip/4/name} || ''}",
+          "address": "/lavmfx/grid/row/1/clip/4/connect",
+          "mode": "tap",
+          "on": 1,
+          "off": 0,
+          "expand": true,
+          "wrap": true,
+          "colorWidget": "#{OSC{/lavmfx/grid/row/1/clip/4/connected, 0} == 3 ? '#62e2ba' : OSC{/lavmfx/grid/row/1/clip/4/connected, 0} == 0 ? '#262626' : '#4a4a4a'}",
+          "alphaFillOff": "#{OSC{/lavmfx/grid/row/1/clip/4/connected, 0} == 3 ? 0.85 : 0.15}",
+          "colorText": "#{OSC{/lavmfx/grid/row/1/clip/4/connected, 0} == 3 ? '#000000' : 'auto'}"
+         },
+         {
+          "type": "button",
+          "label": "#{OSC{/lavmfx/grid/row/1/clip/5/name} || ''}",
+          "address": "/lavmfx/grid/row/1/clip/5/connect",
+          "mode": "tap",
+          "on": 1,
+          "off": 0,
+          "expand": true,
+          "wrap": true,
+          "colorWidget": "#{OSC{/lavmfx/grid/row/1/clip/5/connected, 0} == 3 ? '#62e2ba' : OSC{/lavmfx/grid/row/1/clip/5/connected, 0} == 0 ? '#262626' : '#4a4a4a'}",
+          "alphaFillOff": "#{OSC{/lavmfx/grid/row/1/clip/5/connected, 0} == 3 ? 0.85 : 0.15}",
+          "colorText": "#{OSC{/lavmfx/grid/row/1/clip/5/connected, 0} == 3 ? '#000000' : 'auto'}"
+         },
+         {
+          "type": "button",
+          "label": "#{OSC{/lavmfx/grid/row/1/clip/6/name} || ''}",
+          "address": "/lavmfx/grid/row/1/clip/6/connect",
+          "mode": "tap",
+          "on": 1,
+          "off": 0,
+          "expand": true,
+          "wrap": true,
+          "colorWidget": "#{OSC{/lavmfx/grid/row/1/clip/6/connected, 0} == 3 ? '#62e2ba' : OSC{/lavmfx/grid/row/1/clip/6/connected, 0} == 0 ? '#262626' : '#4a4a4a'}",
+          "alphaFillOff": "#{OSC{/lavmfx/grid/row/1/clip/6/connected, 0} == 3 ? 0.85 : 0.15}",
+          "colorText": "#{OSC{/lavmfx/grid/row/1/clip/6/connected, 0} == 3 ? '#000000' : 'auto'}"
+         },
+         {
+          "type": "button",
+          "label": "#{OSC{/lavmfx/grid/row/1/clip/7/name} || ''}",
+          "address": "/lavmfx/grid/row/1/clip/7/connect",
+          "mode": "tap",
+          "on": 1,
+          "off": 0,
+          "expand": true,
+          "wrap": true,
+          "colorWidget": "#{OSC{/lavmfx/grid/row/1/clip/7/connected, 0} == 3 ? '#62e2ba' : OSC{/lavmfx/grid/row/1/clip/7/connected, 0} == 0 ? '#262626' : '#4a4a4a'}",
+          "alphaFillOff": "#{OSC{/lavmfx/grid/row/1/clip/7/connected, 0} == 3 ? 0.85 : 0.15}",
+          "colorText": "#{OSC{/lavmfx/grid/row/1/clip/7/connected, 0} == 3 ? '#000000' : 'auto'}"
+         },
+         {
+          "type": "button",
+          "label": "#{OSC{/lavmfx/grid/row/1/clip/8/name} || ''}",
+          "address": "/lavmfx/grid/row/1/clip/8/connect",
+          "mode": "tap",
+          "on": 1,
+          "off": 0,
+          "expand": true,
+          "wrap": true,
+          "colorWidget": "#{OSC{/lavmfx/grid/row/1/clip/8/connected, 0} == 3 ? '#62e2ba' : OSC{/lavmfx/grid/row/1/clip/8/connected, 0} == 0 ? '#262626' : '#4a4a4a'}",
+          "alphaFillOff": "#{OSC{/lavmfx/grid/row/1/clip/8/connected, 0} == 3 ? 0.85 : 0.15}",
+          "colorText": "#{OSC{/lavmfx/grid/row/1/clip/8/connected, 0} == 3 ? '#000000' : 'auto'}"
+         }
+        ],
+        "padding": 2,
+        "innerPadding": false,
+        "expand": true
+       }
+      ],
+      "padding": 2,
+      "innerPadding": false,
+      "expand": true
+     }
+    ]
+   },
+   {
+    "type": "tab",
+    "id": "tab_mixer",
+    "label": "Mixer",
+    "layout": "vertical",
+    "widgets": [
+     {
+      "type": "panel",
+      "layout": "horizontal",
+      "widgets": [
+       {
+        "type": "button",
+        "label": "TAP",
+        "address": "/composition/tempocontroller/tempotap",
+        "mode": "tap",
+        "on": 1,
+        "off": 0,
+        "width": 110,
+        "colorWidget": "#62e2ba"
+       },
+       {
+        "type": "text",
+        "label": false,
+        "value": "#{Math.round((OSC{/composition/tempocontroller/tempo, 0.2083}*480+20)*10)/10}",
+        "width": 90,
+        "css": "font-size:150%"
+       },
+       {
+        "type": "button",
+        "label": "−1",
+        "address": "/composition/tempocontroller/tempo",
+        "mode": "tap",
+        "on": "#{(Math.round((OSC{/composition/tempocontroller/tempo, 0.2083}*480+20))-1-20)/480}",
+        "off": 0,
+        "width": 60
+       },
+       {
+        "type": "button",
+        "label": "+1",
+        "address": "/composition/tempocontroller/tempo",
+        "mode": "tap",
+        "on": "#{(Math.round((OSC{/composition/tempocontroller/tempo, 0.2083}*480+20))+1-20)/480}",
+        "off": 0,
+        "width": 60
+       },
+       {
+        "type": "button",
+        "label": "RESYNC",
+        "address": "/composition/tempocontroller/resync",
+        "mode": "tap",
+        "on": 1,
+        "off": 0,
+        "width": 110
+       },
+       {
+        "type": "button",
+        "label": "◀ COL",
+        "address": "/composition/connectprevcolumn",
+        "mode": "tap",
+        "on": 1,
+        "off": 0,
+        "width": 90
+       },
+       {
+        "type": "button",
+        "label": "COL ▶",
+        "address": "/composition/connectnextcolumn",
+        "mode": "tap",
+        "on": 1,
+        "off": 0,
+        "width": 90
+       },
+       {
+        "type": "button",
+        "label": "CLEAR ALL",
+        "address": "/composition/disconnectall",
+        "mode": "tap",
+        "on": 1,
+        "off": 0,
+        "width": 120,
+        "colorWidget": "#c0504d"
+       },
+       {
+        "type": "fader",
+        "label": "MASTER",
+        "address": "/composition/master",
+        "range": {
+         "min": 0,
+         "max": 1
+        },
+        "colorWidget": "#62e2ba",
+        "doubleTap": true,
+        "horizontal": true,
+        "expand": true
+       }
+      ],
+      "padding": 2,
+      "innerPadding": false,
+      "height": 70
+     },
+     {
+      "type": "panel",
+      "layout": "horizontal",
+      "widgets": [
+       {
+        "type": "panel",
+        "layout": "vertical",
+        "widgets": [
+         {
+          "type": "text",
+          "label": false,
+          "value": "",
+          "address": "/lavmfx/grid/row/1/name",
+          "height": 40
+         },
+         {
+          "type": "panel",
+          "layout": "horizontal",
+          "widgets": [
+           {
+            "type": "panel",
+            "layout": "vertical",
+            "widgets": [
+             {
+              "type": "text",
+              "label": false,
+              "value": "M"
+             },
+             {
+              "type": "fader",
+              "label": false,
+              "address": "/lavmfx/grid/row/1/master",
+              "range": {
+               "min": 0,
+               "max": 1
+              },
+              "colorWidget": "#9a9a9a",
+              "doubleTap": true,
+              "expand": true
+             }
+            ],
+            "padding": 2,
+            "innerPadding": false,
+            "expand": true
+           },
+           {
+            "type": "panel",
+            "layout": "vertical",
+            "widgets": [
+             {
+              "type": "text",
+              "label": false,
+              "value": "V"
+             },
+             {
+              "type": "fader",
+              "label": false,
+              "address": "/lavmfx/grid/row/1/video/opacity",
+              "range": {
+               "min": 0,
+               "max": 1
+              },
+              "colorWidget": "#62e2ba",
+              "doubleTap": true,
+              "expand": true
+             }
+            ],
+            "padding": 2,
+            "innerPadding": false,
+            "expand": true
+           },
+           {
+            "type": "panel",
+            "layout": "vertical",
+            "widgets": [
+             {
+              "type": "text",
+              "label": false,
+              "value": "A"
+             },
+             {
+              "type": "fader",
+              "label": false,
+              "address": "/lavmfx/grid/row/1/audio/volume",
+              "range": {
+               "min": 0,
+               "max": 1
+              },
+              "colorWidget": "#d66296",
+              "doubleTap": true,
+              "expand": true
+             }
+            ],
+            "padding": 2,
+            "innerPadding": false,
+            "expand": true
+           }
+          ],
+          "padding": 2,
+          "innerPadding": false,
+          "expand": true
+         },
+         {
+          "type": "panel",
+          "layout": "horizontal",
+          "widgets": [
+           {
+            "type": "button",
+            "label": "B",
+            "address": "/lavmfx/grid/row/1/bypassed",
+            "mode": "toggle",
+            "on": 1,
+            "off": 0,
+            "colorWidget": "#c0504d",
+            "expand": true
+           },
+           {
+            "type": "button",
+            "label": "S",
+            "address": "/lavmfx/grid/row/1/solo",
+            "mode": "toggle",
+            "on": 1,
+            "off": 0,
+            "colorWidget": "#62e2ba",
+            "expand": true
+           }
+          ],
+          "padding": 2,
+          "innerPadding": false,
+          "height": 50
+         }
+        ],
+        "padding": 2,
+        "innerPadding": false,
+        "expand": true
+       },
+       {
+        "type": "panel",
+        "layout": "vertical",
+        "widgets": [
+         {
+          "type": "text",
+          "label": false,
+          "value": "",
+          "address": "/lavmfx/grid/row/2/name",
+          "height": 40
+         },
+         {
+          "type": "panel",
+          "layout": "horizontal",
+          "widgets": [
+           {
+            "type": "panel",
+            "layout": "vertical",
+            "widgets": [
+             {
+              "type": "text",
+              "label": false,
+              "value": "M"
+             },
+             {
+              "type": "fader",
+              "label": false,
+              "address": "/lavmfx/grid/row/2/master",
+              "range": {
+               "min": 0,
+               "max": 1
+              },
+              "colorWidget": "#9a9a9a",
+              "doubleTap": true,
+              "expand": true
+             }
+            ],
+            "padding": 2,
+            "innerPadding": false,
+            "expand": true
+           },
+           {
+            "type": "panel",
+            "layout": "vertical",
+            "widgets": [
+             {
+              "type": "text",
+              "label": false,
+              "value": "V"
+             },
+             {
+              "type": "fader",
+              "label": false,
+              "address": "/lavmfx/grid/row/2/video/opacity",
+              "range": {
+               "min": 0,
+               "max": 1
+              },
+              "colorWidget": "#62e2ba",
+              "doubleTap": true,
+              "expand": true
+             }
+            ],
+            "padding": 2,
+            "innerPadding": false,
+            "expand": true
+           },
+           {
+            "type": "panel",
+            "layout": "vertical",
+            "widgets": [
+             {
+              "type": "text",
+              "label": false,
+              "value": "A"
+             },
+             {
+              "type": "fader",
+              "label": false,
+              "address": "/lavmfx/grid/row/2/audio/volume",
+              "range": {
+               "min": 0,
+               "max": 1
+              },
+              "colorWidget": "#d66296",
+              "doubleTap": true,
+              "expand": true
+             }
+            ],
+            "padding": 2,
+            "innerPadding": false,
+            "expand": true
+           }
+          ],
+          "padding": 2,
+          "innerPadding": false,
+          "expand": true
+         },
+         {
+          "type": "panel",
+          "layout": "horizontal",
+          "widgets": [
+           {
+            "type": "button",
+            "label": "B",
+            "address": "/lavmfx/grid/row/2/bypassed",
+            "mode": "toggle",
+            "on": 1,
+            "off": 0,
+            "colorWidget": "#c0504d",
+            "expand": true
+           },
+           {
+            "type": "button",
+            "label": "S",
+            "address": "/lavmfx/grid/row/2/solo",
+            "mode": "toggle",
+            "on": 1,
+            "off": 0,
+            "colorWidget": "#62e2ba",
+            "expand": true
+           }
+          ],
+          "padding": 2,
+          "innerPadding": false,
+          "height": 50
+         }
+        ],
+        "padding": 2,
+        "innerPadding": false,
+        "expand": true
+       },
+       {
+        "type": "panel",
+        "layout": "vertical",
+        "widgets": [
+         {
+          "type": "text",
+          "label": false,
+          "value": "",
+          "address": "/lavmfx/grid/row/3/name",
+          "height": 40
+         },
+         {
+          "type": "panel",
+          "layout": "horizontal",
+          "widgets": [
+           {
+            "type": "panel",
+            "layout": "vertical",
+            "widgets": [
+             {
+              "type": "text",
+              "label": false,
+              "value": "M"
+             },
+             {
+              "type": "fader",
+              "label": false,
+              "address": "/lavmfx/grid/row/3/master",
+              "range": {
+               "min": 0,
+               "max": 1
+              },
+              "colorWidget": "#9a9a9a",
+              "doubleTap": true,
+              "expand": true
+             }
+            ],
+            "padding": 2,
+            "innerPadding": false,
+            "expand": true
+           },
+           {
+            "type": "panel",
+            "layout": "vertical",
+            "widgets": [
+             {
+              "type": "text",
+              "label": false,
+              "value": "V"
+             },
+             {
+              "type": "fader",
+              "label": false,
+              "address": "/lavmfx/grid/row/3/video/opacity",
+              "range": {
+               "min": 0,
+               "max": 1
+              },
+              "colorWidget": "#62e2ba",
+              "doubleTap": true,
+              "expand": true
+             }
+            ],
+            "padding": 2,
+            "innerPadding": false,
+            "expand": true
+           },
+           {
+            "type": "panel",
+            "layout": "vertical",
+            "widgets": [
+             {
+              "type": "text",
+              "label": false,
+              "value": "A"
+             },
+             {
+              "type": "fader",
+              "label": false,
+              "address": "/lavmfx/grid/row/3/audio/volume",
+              "range": {
+               "min": 0,
+               "max": 1
+              },
+              "colorWidget": "#d66296",
+              "doubleTap": true,
+              "expand": true
+             }
+            ],
+            "padding": 2,
+            "innerPadding": false,
+            "expand": true
+           }
+          ],
+          "padding": 2,
+          "innerPadding": false,
+          "expand": true
+         },
+         {
+          "type": "panel",
+          "layout": "horizontal",
+          "widgets": [
+           {
+            "type": "button",
+            "label": "B",
+            "address": "/lavmfx/grid/row/3/bypassed",
+            "mode": "toggle",
+            "on": 1,
+            "off": 0,
+            "colorWidget": "#c0504d",
+            "expand": true
+           },
+           {
+            "type": "button",
+            "label": "S",
+            "address": "/lavmfx/grid/row/3/solo",
+            "mode": "toggle",
+            "on": 1,
+            "off": 0,
+            "colorWidget": "#62e2ba",
+            "expand": true
+           }
+          ],
+          "padding": 2,
+          "innerPadding": false,
+          "height": 50
+         }
+        ],
+        "padding": 2,
+        "innerPadding": false,
+        "expand": true
+       },
+       {
+        "type": "panel",
+        "layout": "vertical",
+        "widgets": [
+         {
+          "type": "text",
+          "label": false,
+          "value": "",
+          "address": "/lavmfx/grid/row/4/name",
+          "height": 40
+         },
+         {
+          "type": "panel",
+          "layout": "horizontal",
+          "widgets": [
+           {
+            "type": "panel",
+            "layout": "vertical",
+            "widgets": [
+             {
+              "type": "text",
+              "label": false,
+              "value": "M"
+             },
+             {
+              "type": "fader",
+              "label": false,
+              "address": "/lavmfx/grid/row/4/master",
+              "range": {
+               "min": 0,
+               "max": 1
+              },
+              "colorWidget": "#9a9a9a",
+              "doubleTap": true,
+              "expand": true
+             }
+            ],
+            "padding": 2,
+            "innerPadding": false,
+            "expand": true
+           },
+           {
+            "type": "panel",
+            "layout": "vertical",
+            "widgets": [
+             {
+              "type": "text",
+              "label": false,
+              "value": "V"
+             },
+             {
+              "type": "fader",
+              "label": false,
+              "address": "/lavmfx/grid/row/4/video/opacity",
+              "range": {
+               "min": 0,
+               "max": 1
+              },
+              "colorWidget": "#62e2ba",
+              "doubleTap": true,
+              "expand": true
+             }
+            ],
+            "padding": 2,
+            "innerPadding": false,
+            "expand": true
+           },
+           {
+            "type": "panel",
+            "layout": "vertical",
+            "widgets": [
+             {
+              "type": "text",
+              "label": false,
+              "value": "A"
+             },
+             {
+              "type": "fader",
+              "label": false,
+              "address": "/lavmfx/grid/row/4/audio/volume",
+              "range": {
+               "min": 0,
+               "max": 1
+              },
+              "colorWidget": "#d66296",
+              "doubleTap": true,
+              "expand": true
+             }
+            ],
+            "padding": 2,
+            "innerPadding": false,
+            "expand": true
+           }
+          ],
+          "padding": 2,
+          "innerPadding": false,
+          "expand": true
+         },
+         {
+          "type": "panel",
+          "layout": "horizontal",
+          "widgets": [
+           {
+            "type": "button",
+            "label": "B",
+            "address": "/lavmfx/grid/row/4/bypassed",
+            "mode": "toggle",
+            "on": 1,
+            "off": 0,
+            "colorWidget": "#c0504d",
+            "expand": true
+           },
+           {
+            "type": "button",
+            "label": "S",
+            "address": "/lavmfx/grid/row/4/solo",
+            "mode": "toggle",
+            "on": 1,
+            "off": 0,
+            "colorWidget": "#62e2ba",
+            "expand": true
+           }
+          ],
+          "padding": 2,
+          "innerPadding": false,
+          "height": 50
+         }
+        ],
+        "padding": 2,
+        "innerPadding": false,
+        "expand": true
+       },
+       {
+        "type": "panel",
+        "layout": "vertical",
+        "widgets": [
+         {
+          "type": "text",
+          "label": false,
+          "value": "",
+          "address": "/lavmfx/grid/row/5/name",
+          "height": 40
+         },
+         {
+          "type": "panel",
+          "layout": "horizontal",
+          "widgets": [
+           {
+            "type": "panel",
+            "layout": "vertical",
+            "widgets": [
+             {
+              "type": "text",
+              "label": false,
+              "value": "M"
+             },
+             {
+              "type": "fader",
+              "label": false,
+              "address": "/lavmfx/grid/row/5/master",
+              "range": {
+               "min": 0,
+               "max": 1
+              },
+              "colorWidget": "#9a9a9a",
+              "doubleTap": true,
+              "expand": true
+             }
+            ],
+            "padding": 2,
+            "innerPadding": false,
+            "expand": true
+           },
+           {
+            "type": "panel",
+            "layout": "vertical",
+            "widgets": [
+             {
+              "type": "text",
+              "label": false,
+              "value": "V"
+             },
+             {
+              "type": "fader",
+              "label": false,
+              "address": "/lavmfx/grid/row/5/video/opacity",
+              "range": {
+               "min": 0,
+               "max": 1
+              },
+              "colorWidget": "#62e2ba",
+              "doubleTap": true,
+              "expand": true
+             }
+            ],
+            "padding": 2,
+            "innerPadding": false,
+            "expand": true
+           },
+           {
+            "type": "panel",
+            "layout": "vertical",
+            "widgets": [
+             {
+              "type": "text",
+              "label": false,
+              "value": "A"
+             },
+             {
+              "type": "fader",
+              "label": false,
+              "address": "/lavmfx/grid/row/5/audio/volume",
+              "range": {
+               "min": 0,
+               "max": 1
+              },
+              "colorWidget": "#d66296",
+              "doubleTap": true,
+              "expand": true
+             }
+            ],
+            "padding": 2,
+            "innerPadding": false,
+            "expand": true
+           }
+          ],
+          "padding": 2,
+          "innerPadding": false,
+          "expand": true
+         },
+         {
+          "type": "panel",
+          "layout": "horizontal",
+          "widgets": [
+           {
+            "type": "button",
+            "label": "B",
+            "address": "/lavmfx/grid/row/5/bypassed",
+            "mode": "toggle",
+            "on": 1,
+            "off": 0,
+            "colorWidget": "#c0504d",
+            "expand": true
+           },
+           {
+            "type": "button",
+            "label": "S",
+            "address": "/lavmfx/grid/row/5/solo",
+            "mode": "toggle",
+            "on": 1,
+            "off": 0,
+            "colorWidget": "#62e2ba",
+            "expand": true
+           }
+          ],
+          "padding": 2,
+          "innerPadding": false,
+          "height": 50
+         }
+        ],
+        "padding": 2,
+        "innerPadding": false,
+        "expand": true
+       },
+       {
+        "type": "panel",
+        "layout": "vertical",
+        "widgets": [
+         {
+          "type": "text",
+          "label": false,
+          "value": "",
+          "address": "/lavmfx/grid/row/6/name",
+          "height": 40
+         },
+         {
+          "type": "panel",
+          "layout": "horizontal",
+          "widgets": [
+           {
+            "type": "panel",
+            "layout": "vertical",
+            "widgets": [
+             {
+              "type": "text",
+              "label": false,
+              "value": "M"
+             },
+             {
+              "type": "fader",
+              "label": false,
+              "address": "/lavmfx/grid/row/6/master",
+              "range": {
+               "min": 0,
+               "max": 1
+              },
+              "colorWidget": "#9a9a9a",
+              "doubleTap": true,
+              "expand": true
+             }
+            ],
+            "padding": 2,
+            "innerPadding": false,
+            "expand": true
+           },
+           {
+            "type": "panel",
+            "layout": "vertical",
+            "widgets": [
+             {
+              "type": "text",
+              "label": false,
+              "value": "V"
+             },
+             {
+              "type": "fader",
+              "label": false,
+              "address": "/lavmfx/grid/row/6/video/opacity",
+              "range": {
+               "min": 0,
+               "max": 1
+              },
+              "colorWidget": "#62e2ba",
+              "doubleTap": true,
+              "expand": true
+             }
+            ],
+            "padding": 2,
+            "innerPadding": false,
+            "expand": true
+           },
+           {
+            "type": "panel",
+            "layout": "vertical",
+            "widgets": [
+             {
+              "type": "text",
+              "label": false,
+              "value": "A"
+             },
+             {
+              "type": "fader",
+              "label": false,
+              "address": "/lavmfx/grid/row/6/audio/volume",
+              "range": {
+               "min": 0,
+               "max": 1
+              },
+              "colorWidget": "#d66296",
+              "doubleTap": true,
+              "expand": true
+             }
+            ],
+            "padding": 2,
+            "innerPadding": false,
+            "expand": true
+           }
+          ],
+          "padding": 2,
+          "innerPadding": false,
+          "expand": true
+         },
+         {
+          "type": "panel",
+          "layout": "horizontal",
+          "widgets": [
+           {
+            "type": "button",
+            "label": "B",
+            "address": "/lavmfx/grid/row/6/bypassed",
+            "mode": "toggle",
+            "on": 1,
+            "off": 0,
+            "colorWidget": "#c0504d",
+            "expand": true
+           },
+           {
+            "type": "button",
+            "label": "S",
+            "address": "/lavmfx/grid/row/6/solo",
+            "mode": "toggle",
+            "on": 1,
+            "off": 0,
+            "colorWidget": "#62e2ba",
+            "expand": true
+           }
+          ],
+          "padding": 2,
+          "innerPadding": false,
+          "height": 50
+         }
+        ],
+        "padding": 2,
+        "innerPadding": false,
+        "expand": true
+       },
+       {
+        "type": "panel",
+        "layout": "vertical",
+        "widgets": [
+         {
+          "type": "text",
+          "label": false,
+          "value": "",
+          "address": "/lavmfx/grid/row/7/name",
+          "height": 40
+         },
+         {
+          "type": "panel",
+          "layout": "horizontal",
+          "widgets": [
+           {
+            "type": "panel",
+            "layout": "vertical",
+            "widgets": [
+             {
+              "type": "text",
+              "label": false,
+              "value": "M"
+             },
+             {
+              "type": "fader",
+              "label": false,
+              "address": "/lavmfx/grid/row/7/master",
+              "range": {
+               "min": 0,
+               "max": 1
+              },
+              "colorWidget": "#9a9a9a",
+              "doubleTap": true,
+              "expand": true
+             }
+            ],
+            "padding": 2,
+            "innerPadding": false,
+            "expand": true
+           },
+           {
+            "type": "panel",
+            "layout": "vertical",
+            "widgets": [
+             {
+              "type": "text",
+              "label": false,
+              "value": "V"
+             },
+             {
+              "type": "fader",
+              "label": false,
+              "address": "/lavmfx/grid/row/7/video/opacity",
+              "range": {
+               "min": 0,
+               "max": 1
+              },
+              "colorWidget": "#62e2ba",
+              "doubleTap": true,
+              "expand": true
+             }
+            ],
+            "padding": 2,
+            "innerPadding": false,
+            "expand": true
+           },
+           {
+            "type": "panel",
+            "layout": "vertical",
+            "widgets": [
+             {
+              "type": "text",
+              "label": false,
+              "value": "A"
+             },
+             {
+              "type": "fader",
+              "label": false,
+              "address": "/lavmfx/grid/row/7/audio/volume",
+              "range": {
+               "min": 0,
+               "max": 1
+              },
+              "colorWidget": "#d66296",
+              "doubleTap": true,
+              "expand": true
+             }
+            ],
+            "padding": 2,
+            "innerPadding": false,
+            "expand": true
+           }
+          ],
+          "padding": 2,
+          "innerPadding": false,
+          "expand": true
+         },
+         {
+          "type": "panel",
+          "layout": "horizontal",
+          "widgets": [
+           {
+            "type": "button",
+            "label": "B",
+            "address": "/lavmfx/grid/row/7/bypassed",
+            "mode": "toggle",
+            "on": 1,
+            "off": 0,
+            "colorWidget": "#c0504d",
+            "expand": true
+           },
+           {
+            "type": "button",
+            "label": "S",
+            "address": "/lavmfx/grid/row/7/solo",
+            "mode": "toggle",
+            "on": 1,
+            "off": 0,
+            "colorWidget": "#62e2ba",
+            "expand": true
+           }
+          ],
+          "padding": 2,
+          "innerPadding": false,
+          "height": 50
+         }
+        ],
+        "padding": 2,
+        "innerPadding": false,
+        "expand": true
+       },
+       {
+        "type": "panel",
+        "layout": "vertical",
+        "widgets": [
+         {
+          "type": "text",
+          "label": false,
+          "value": "",
+          "address": "/lavmfx/grid/row/8/name",
+          "height": 40
+         },
+         {
+          "type": "panel",
+          "layout": "horizontal",
+          "widgets": [
+           {
+            "type": "panel",
+            "layout": "vertical",
+            "widgets": [
+             {
+              "type": "text",
+              "label": false,
+              "value": "M"
+             },
+             {
+              "type": "fader",
+              "label": false,
+              "address": "/lavmfx/grid/row/8/master",
+              "range": {
+               "min": 0,
+               "max": 1
+              },
+              "colorWidget": "#9a9a9a",
+              "doubleTap": true,
+              "expand": true
+             }
+            ],
+            "padding": 2,
+            "innerPadding": false,
+            "expand": true
+           },
+           {
+            "type": "panel",
+            "layout": "vertical",
+            "widgets": [
+             {
+              "type": "text",
+              "label": false,
+              "value": "V"
+             },
+             {
+              "type": "fader",
+              "label": false,
+              "address": "/lavmfx/grid/row/8/video/opacity",
+              "range": {
+               "min": 0,
+               "max": 1
+              },
+              "colorWidget": "#62e2ba",
+              "doubleTap": true,
+              "expand": true
+             }
+            ],
+            "padding": 2,
+            "innerPadding": false,
+            "expand": true
+           },
+           {
+            "type": "panel",
+            "layout": "vertical",
+            "widgets": [
+             {
+              "type": "text",
+              "label": false,
+              "value": "A"
+             },
+             {
+              "type": "fader",
+              "label": false,
+              "address": "/lavmfx/grid/row/8/audio/volume",
+              "range": {
+               "min": 0,
+               "max": 1
+              },
+              "colorWidget": "#d66296",
+              "doubleTap": true,
+              "expand": true
+             }
+            ],
+            "padding": 2,
+            "innerPadding": false,
+            "expand": true
+           }
+          ],
+          "padding": 2,
+          "innerPadding": false,
+          "expand": true
+         },
+         {
+          "type": "panel",
+          "layout": "horizontal",
+          "widgets": [
+           {
+            "type": "button",
+            "label": "B",
+            "address": "/lavmfx/grid/row/8/bypassed",
+            "mode": "toggle",
+            "on": 1,
+            "off": 0,
+            "colorWidget": "#c0504d",
+            "expand": true
+           },
+           {
+            "type": "button",
+            "label": "S",
+            "address": "/lavmfx/grid/row/8/solo",
+            "mode": "toggle",
+            "on": 1,
+            "off": 0,
+            "colorWidget": "#62e2ba",
+            "expand": true
+           }
+          ],
+          "padding": 2,
+          "innerPadding": false,
+          "height": 50
+         }
+        ],
+        "padding": 2,
+        "innerPadding": false,
+        "expand": true
+       }
+      ],
+      "padding": 2,
+      "innerPadding": false,
+      "expand": true
+     },
+     {
+      "type": "panel",
+      "layout": "horizontal",
+      "widgets": [
+       {
+        "type": "fader",
+        "label": "CROSSFADER",
+        "address": "/composition/crossfader/phase",
+        "range": {
+         "min": 0,
+         "max": 1
+        },
+        "colorWidget": "#62e2ba",
+        "doubleTap": true,
+        "horizontal": true,
+        "expand": true,
+        "origin": 0.5
+       },
+       {
+        "type": "fader",
+        "label": "SPEED",
+        "address": "/composition/speed",
+        "range": {
+         "min": 0,
+         "max": 1
+        },
+        "colorWidget": "#62e2ba",
+        "doubleTap": true,
+        "horizontal": true,
+        "width": 300
+       }
+      ],
+      "padding": 2,
+      "innerPadding": false,
+      "height": 70
+     }
+    ]
+   },
+   {
+    "type": "tab",
+    "id": "tab_dash",
+    "label": "Dashboards",
+    "layout": "vertical",
+    "widgets": [
+     {
+      "type": "panel",
+      "layout": "horizontal",
+      "widgets": [
+       {
+        "type": "button",
+        "label": "TAP",
+        "address": "/composition/tempocontroller/tempotap",
+        "mode": "tap",
+        "on": 1,
+        "off": 0,
+        "width": 110,
+        "colorWidget": "#62e2ba"
+       },
+       {
+        "type": "text",
+        "label": false,
+        "value": "#{Math.round((OSC{/composition/tempocontroller/tempo, 0.2083}*480+20)*10)/10}",
+        "width": 90,
+        "css": "font-size:150%"
+       },
+       {
+        "type": "button",
+        "label": "−1",
+        "address": "/composition/tempocontroller/tempo",
+        "mode": "tap",
+        "on": "#{(Math.round((OSC{/composition/tempocontroller/tempo, 0.2083}*480+20))-1-20)/480}",
+        "off": 0,
+        "width": 60
+       },
+       {
+        "type": "button",
+        "label": "+1",
+        "address": "/composition/tempocontroller/tempo",
+        "mode": "tap",
+        "on": "#{(Math.round((OSC{/composition/tempocontroller/tempo, 0.2083}*480+20))+1-20)/480}",
+        "off": 0,
+        "width": 60
+       },
+       {
+        "type": "button",
+        "label": "RESYNC",
+        "address": "/composition/tempocontroller/resync",
+        "mode": "tap",
+        "on": 1,
+        "off": 0,
+        "width": 110
+       },
+       {
+        "type": "button",
+        "label": "◀ COL",
+        "address": "/composition/connectprevcolumn",
+        "mode": "tap",
+        "on": 1,
+        "off": 0,
+        "width": 90
+       },
+       {
+        "type": "button",
+        "label": "COL ▶",
+        "address": "/composition/connectnextcolumn",
+        "mode": "tap",
+        "on": 1,
+        "off": 0,
+        "width": 90
+       },
+       {
+        "type": "button",
+        "label": "CLEAR ALL",
+        "address": "/composition/disconnectall",
+        "mode": "tap",
+        "on": 1,
+        "off": 0,
+        "width": 120,
+        "colorWidget": "#c0504d"
+       },
+       {
+        "type": "fader",
+        "label": "MASTER",
+        "address": "/composition/master",
+        "range": {
+         "min": 0,
+         "max": 1
+        },
+        "colorWidget": "#62e2ba",
+        "doubleTap": true,
+        "horizontal": true,
+        "expand": true
+       }
+      ],
+      "padding": 2,
+      "innerPadding": false,
+      "height": 70
+     },
+     {
+      "type": "panel",
+      "layout": "vertical",
+      "widgets": [
+       {
+        "type": "panel",
+        "layout": "horizontal",
+        "widgets": [
+         {
+          "type": "text",
+          "label": false,
+          "value": "Composition",
+          "width": 120
+         }
+        ],
+        "padding": 2,
+        "innerPadding": false,
+        "height": 50
+       },
+       {
+        "type": "panel",
+        "layout": "horizontal",
+        "widgets": [
+         {
+          "type": "knob",
+          "label": "Link 1",
+          "address": "/composition/dashboard/link1",
+          "range": {
+           "min": 0,
+           "max": 1
+          },
+          "colorWidget": "#62e2ba",
+          "expand": true,
+          "doubleTap": true
+         },
+         {
+          "type": "knob",
+          "label": "Link 2",
+          "address": "/composition/dashboard/link2",
+          "range": {
+           "min": 0,
+           "max": 1
+          },
+          "colorWidget": "#62e2ba",
+          "expand": true,
+          "doubleTap": true
+         },
+         {
+          "type": "knob",
+          "label": "Link 3",
+          "address": "/composition/dashboard/link3",
+          "range": {
+           "min": 0,
+           "max": 1
+          },
+          "colorWidget": "#62e2ba",
+          "expand": true,
+          "doubleTap": true
+         },
+         {
+          "type": "knob",
+          "label": "Link 4",
+          "address": "/composition/dashboard/link4",
+          "range": {
+           "min": 0,
+           "max": 1
+          },
+          "colorWidget": "#62e2ba",
+          "expand": true,
+          "doubleTap": true
+         },
+         {
+          "type": "knob",
+          "label": "Link 5",
+          "address": "/composition/dashboard/link5",
+          "range": {
+           "min": 0,
+           "max": 1
+          },
+          "colorWidget": "#62e2ba",
+          "expand": true,
+          "doubleTap": true
+         },
+         {
+          "type": "knob",
+          "label": "Link 6",
+          "address": "/composition/dashboard/link6",
+          "range": {
+           "min": 0,
+           "max": 1
+          },
+          "colorWidget": "#62e2ba",
+          "expand": true,
+          "doubleTap": true
+         },
+         {
+          "type": "knob",
+          "label": "Link 7",
+          "address": "/composition/dashboard/link7",
+          "range": {
+           "min": 0,
+           "max": 1
+          },
+          "colorWidget": "#62e2ba",
+          "expand": true,
+          "doubleTap": true
+         },
+         {
+          "type": "knob",
+          "label": "Link 8",
+          "address": "/composition/dashboard/link8",
+          "range": {
+           "min": 0,
+           "max": 1
+          },
+          "colorWidget": "#62e2ba",
+          "expand": true,
+          "doubleTap": true
+         }
+        ],
+        "padding": 2,
+        "innerPadding": false,
+        "expand": true
+       }
+      ],
+      "padding": 2,
+      "innerPadding": false,
+      "expand": true
+     },
+     {
+      "type": "panel",
+      "layout": "vertical",
+      "widgets": [
+       {
+        "type": "panel",
+        "layout": "horizontal",
+        "widgets": [
+         {
+          "type": "text",
+          "label": false,
+          "value": "Layer",
+          "width": 120
+         },
+         {
+          "type": "button",
+          "label": "◀",
+          "address": "/lavmfx/select/layer",
+          "mode": "tap",
+          "on": 1,
+          "off": 0,
+          "preArgs": [
+           -1
+          ],
+          "width": 50
+         },
+         {
+          "type": "button",
+          "label": "▶",
+          "address": "/lavmfx/select/layer",
+          "mode": "tap",
+          "on": 1,
+          "off": 0,
+          "preArgs": [
+           1
+          ],
+          "width": 50
+         },
+         {
+          "type": "text",
+          "label": false,
+          "value": "—",
+          "address": "/lavmfx/selected/layer",
+          "width": 200
+         }
+        ],
+        "padding": 2,
+        "innerPadding": false,
+        "height": 50
+       },
+       {
+        "type": "panel",
+        "layout": "horizontal",
+        "widgets": [
+         {
+          "type": "knob",
+          "label": "Link 1",
+          "address": "/composition/selectedlayer/dashboard/link1",
+          "range": {
+           "min": 0,
+           "max": 1
+          },
+          "colorWidget": "#62e2ba",
+          "expand": true,
+          "doubleTap": true
+         },
+         {
+          "type": "knob",
+          "label": "Link 2",
+          "address": "/composition/selectedlayer/dashboard/link2",
+          "range": {
+           "min": 0,
+           "max": 1
+          },
+          "colorWidget": "#62e2ba",
+          "expand": true,
+          "doubleTap": true
+         },
+         {
+          "type": "knob",
+          "label": "Link 3",
+          "address": "/composition/selectedlayer/dashboard/link3",
+          "range": {
+           "min": 0,
+           "max": 1
+          },
+          "colorWidget": "#62e2ba",
+          "expand": true,
+          "doubleTap": true
+         },
+         {
+          "type": "knob",
+          "label": "Link 4",
+          "address": "/composition/selectedlayer/dashboard/link4",
+          "range": {
+           "min": 0,
+           "max": 1
+          },
+          "colorWidget": "#62e2ba",
+          "expand": true,
+          "doubleTap": true
+         },
+         {
+          "type": "knob",
+          "label": "Link 5",
+          "address": "/composition/selectedlayer/dashboard/link5",
+          "range": {
+           "min": 0,
+           "max": 1
+          },
+          "colorWidget": "#62e2ba",
+          "expand": true,
+          "doubleTap": true
+         },
+         {
+          "type": "knob",
+          "label": "Link 6",
+          "address": "/composition/selectedlayer/dashboard/link6",
+          "range": {
+           "min": 0,
+           "max": 1
+          },
+          "colorWidget": "#62e2ba",
+          "expand": true,
+          "doubleTap": true
+         },
+         {
+          "type": "knob",
+          "label": "Link 7",
+          "address": "/composition/selectedlayer/dashboard/link7",
+          "range": {
+           "min": 0,
+           "max": 1
+          },
+          "colorWidget": "#62e2ba",
+          "expand": true,
+          "doubleTap": true
+         },
+         {
+          "type": "knob",
+          "label": "Link 8",
+          "address": "/composition/selectedlayer/dashboard/link8",
+          "range": {
+           "min": 0,
+           "max": 1
+          },
+          "colorWidget": "#62e2ba",
+          "expand": true,
+          "doubleTap": true
+         }
+        ],
+        "padding": 2,
+        "innerPadding": false,
+        "expand": true
+       }
+      ],
+      "padding": 2,
+      "innerPadding": false,
+      "expand": true
+     },
+     {
+      "type": "panel",
+      "layout": "vertical",
+      "widgets": [
+       {
+        "type": "panel",
+        "layout": "horizontal",
+        "widgets": [
+         {
+          "type": "text",
+          "label": false,
+          "value": "Clip",
+          "width": 120
+         },
+         {
+          "type": "button",
+          "label": "◀",
+          "address": "/lavmfx/select/clip",
+          "mode": "tap",
+          "on": 1,
+          "off": 0,
+          "preArgs": [
+           -1
+          ],
+          "width": 50
+         },
+         {
+          "type": "button",
+          "label": "▶",
+          "address": "/lavmfx/select/clip",
+          "mode": "tap",
+          "on": 1,
+          "off": 0,
+          "preArgs": [
+           1
+          ],
+          "width": 50
+         },
+         {
+          "type": "text",
+          "label": false,
+          "value": "—",
+          "address": "/lavmfx/selected/clip",
+          "width": 200
+         }
+        ],
+        "padding": 2,
+        "innerPadding": false,
+        "height": 50
+       },
+       {
+        "type": "panel",
+        "layout": "horizontal",
+        "widgets": [
+         {
+          "type": "knob",
+          "label": "Link 1",
+          "address": "/composition/selectedclip/dashboard/link1",
+          "range": {
+           "min": 0,
+           "max": 1
+          },
+          "colorWidget": "#62e2ba",
+          "expand": true,
+          "doubleTap": true
+         },
+         {
+          "type": "knob",
+          "label": "Link 2",
+          "address": "/composition/selectedclip/dashboard/link2",
+          "range": {
+           "min": 0,
+           "max": 1
+          },
+          "colorWidget": "#62e2ba",
+          "expand": true,
+          "doubleTap": true
+         },
+         {
+          "type": "knob",
+          "label": "Link 3",
+          "address": "/composition/selectedclip/dashboard/link3",
+          "range": {
+           "min": 0,
+           "max": 1
+          },
+          "colorWidget": "#62e2ba",
+          "expand": true,
+          "doubleTap": true
+         },
+         {
+          "type": "knob",
+          "label": "Link 4",
+          "address": "/composition/selectedclip/dashboard/link4",
+          "range": {
+           "min": 0,
+           "max": 1
+          },
+          "colorWidget": "#62e2ba",
+          "expand": true,
+          "doubleTap": true
+         },
+         {
+          "type": "knob",
+          "label": "Link 5",
+          "address": "/composition/selectedclip/dashboard/link5",
+          "range": {
+           "min": 0,
+           "max": 1
+          },
+          "colorWidget": "#62e2ba",
+          "expand": true,
+          "doubleTap": true
+         },
+         {
+          "type": "knob",
+          "label": "Link 6",
+          "address": "/composition/selectedclip/dashboard/link6",
+          "range": {
+           "min": 0,
+           "max": 1
+          },
+          "colorWidget": "#62e2ba",
+          "expand": true,
+          "doubleTap": true
+         },
+         {
+          "type": "knob",
+          "label": "Link 7",
+          "address": "/composition/selectedclip/dashboard/link7",
+          "range": {
+           "min": 0,
+           "max": 1
+          },
+          "colorWidget": "#62e2ba",
+          "expand": true,
+          "doubleTap": true
+         },
+         {
+          "type": "knob",
+          "label": "Link 8",
+          "address": "/composition/selectedclip/dashboard/link8",
+          "range": {
+           "min": 0,
+           "max": 1
+          },
+          "colorWidget": "#62e2ba",
+          "expand": true,
+          "doubleTap": true
+         }
+        ],
+        "padding": 2,
+        "innerPadding": false,
+        "expand": true
+       }
+      ],
+      "padding": 2,
+      "innerPadding": false,
+      "expand": true
+     }
+    ]
+   },
+   {
+    "type": "tab",
+    "id": "tab_fx_clip",
+    "label": "Clip FX",
+    "layout": "vertical",
+    "widgets": [
+     {
+      "type": "panel",
+      "layout": "horizontal",
+      "widgets": [
+       {
+        "type": "button",
+        "label": "TAP",
+        "address": "/composition/tempocontroller/tempotap",
+        "mode": "tap",
+        "on": 1,
+        "off": 0,
+        "width": 110,
+        "colorWidget": "#62e2ba"
+       },
+       {
+        "type": "text",
+        "label": false,
+        "value": "#{Math.round((OSC{/composition/tempocontroller/tempo, 0.2083}*480+20)*10)/10}",
+        "width": 90,
+        "css": "font-size:150%"
+       },
+       {
+        "type": "button",
+        "label": "−1",
+        "address": "/composition/tempocontroller/tempo",
+        "mode": "tap",
+        "on": "#{(Math.round((OSC{/composition/tempocontroller/tempo, 0.2083}*480+20))-1-20)/480}",
+        "off": 0,
+        "width": 60
+       },
+       {
+        "type": "button",
+        "label": "+1",
+        "address": "/composition/tempocontroller/tempo",
+        "mode": "tap",
+        "on": "#{(Math.round((OSC{/composition/tempocontroller/tempo, 0.2083}*480+20))+1-20)/480}",
+        "off": 0,
+        "width": 60
+       },
+       {
+        "type": "button",
+        "label": "RESYNC",
+        "address": "/composition/tempocontroller/resync",
+        "mode": "tap",
+        "on": 1,
+        "off": 0,
+        "width": 110
+       },
+       {
+        "type": "button",
+        "label": "◀ COL",
+        "address": "/composition/connectprevcolumn",
+        "mode": "tap",
+        "on": 1,
+        "off": 0,
+        "width": 90
+       },
+       {
+        "type": "button",
+        "label": "COL ▶",
+        "address": "/composition/connectnextcolumn",
+        "mode": "tap",
+        "on": 1,
+        "off": 0,
+        "width": 90
+       },
+       {
+        "type": "button",
+        "label": "CLEAR ALL",
+        "address": "/composition/disconnectall",
+        "mode": "tap",
+        "on": 1,
+        "off": 0,
+        "width": 120,
+        "colorWidget": "#c0504d"
+       },
+       {
+        "type": "fader",
+        "label": "MASTER",
+        "address": "/composition/master",
+        "range": {
+         "min": 0,
+         "max": 1
+        },
+        "colorWidget": "#62e2ba",
+        "doubleTap": true,
+        "horizontal": true,
+        "expand": true
+       }
+      ],
+      "padding": 2,
+      "innerPadding": false,
+      "height": 70
+     },
+     {
+      "type": "panel",
+      "layout": "horizontal",
+      "widgets": [
+       {
+        "type": "text",
+        "label": false,
+        "value": "Clip FX",
+        "width": 120
+       },
+       {
+        "type": "button",
+        "label": "◀",
+        "address": "/lavmfx/select/clip",
+        "mode": "tap",
+        "on": 1,
+        "off": 0,
+        "preArgs": [
+         -1
+        ],
+        "width": 50
+       },
+       {
+        "type": "button",
+        "label": "▶",
+        "address": "/lavmfx/select/clip",
+        "mode": "tap",
+        "on": 1,
+        "off": 0,
+        "preArgs": [
+         1
+        ],
+        "width": 50
+       },
+       {
+        "type": "text",
+        "label": false,
+        "value": "—",
+        "address": "/lavmfx/selected/clip",
+        "expand": true
+       }
+      ],
+      "padding": 2,
+      "innerPadding": false,
+      "height": 50
+     },
+     {
+      "type": "matrix",
+      "widgetType": "button",
+      "height": 60,
+      "layout": "horizontal",
+      "quantity": "#{((v) => typeof v === 'string' ? JSON.parse(v || '[]') : (v || []))(OSC{/lavmfx/fx/clip/toggles}).length}",
+      "props": "JS{ const p = ((v) => typeof v === 'string' ? JSON.parse(v || '[]') : (v || []))(OSC{/lavmfx/fx/clip/toggles})[$] || {}; return {label: p.l || '', address: p.a || '/lavmfx/none', mode: 'toggle', on: 1, off: 0, colorWidget: '#62e2ba', css: 'font-size:80%'} }"
+     },
+     {
+      "type": "matrix",
+      "widgetType": "panel",
+      "expand": true,
+      "layout": "grid",
+      "gridTemplate": 6,
+      "quantity": "#{((v) => typeof v === 'string' ? JSON.parse(v || '[]') : (v || []))(OSC{/lavmfx/fx/clip/ranges}).length}",
+      "props": "JS{ const p = ((v) => typeof v === 'string' ? JSON.parse(v || '[]') : (v || []))(OSC{/lavmfx/fx/clip/ranges})[$] || {}; return {layout: 'vertical', padding: 2, innerPadding: false, widgets: [{type: 'text', label: false, value: p.l || '', height: 34, css: 'font-size:75%'}, {type: 'fader', label: false, address: p.a || '/lavmfx/none', range: {min: 0, max: 1}, expand: true, doubleTap: true, colorWidget: '#62e2ba'}]} }"
+     }
+    ]
+   },
+   {
+    "type": "tab",
+    "id": "tab_fx_layer",
+    "label": "Layer FX",
+    "layout": "vertical",
+    "widgets": [
+     {
+      "type": "panel",
+      "layout": "horizontal",
+      "widgets": [
+       {
+        "type": "button",
+        "label": "TAP",
+        "address": "/composition/tempocontroller/tempotap",
+        "mode": "tap",
+        "on": 1,
+        "off": 0,
+        "width": 110,
+        "colorWidget": "#62e2ba"
+       },
+       {
+        "type": "text",
+        "label": false,
+        "value": "#{Math.round((OSC{/composition/tempocontroller/tempo, 0.2083}*480+20)*10)/10}",
+        "width": 90,
+        "css": "font-size:150%"
+       },
+       {
+        "type": "button",
+        "label": "−1",
+        "address": "/composition/tempocontroller/tempo",
+        "mode": "tap",
+        "on": "#{(Math.round((OSC{/composition/tempocontroller/tempo, 0.2083}*480+20))-1-20)/480}",
+        "off": 0,
+        "width": 60
+       },
+       {
+        "type": "button",
+        "label": "+1",
+        "address": "/composition/tempocontroller/tempo",
+        "mode": "tap",
+        "on": "#{(Math.round((OSC{/composition/tempocontroller/tempo, 0.2083}*480+20))+1-20)/480}",
+        "off": 0,
+        "width": 60
+       },
+       {
+        "type": "button",
+        "label": "RESYNC",
+        "address": "/composition/tempocontroller/resync",
+        "mode": "tap",
+        "on": 1,
+        "off": 0,
+        "width": 110
+       },
+       {
+        "type": "button",
+        "label": "◀ COL",
+        "address": "/composition/connectprevcolumn",
+        "mode": "tap",
+        "on": 1,
+        "off": 0,
+        "width": 90
+       },
+       {
+        "type": "button",
+        "label": "COL ▶",
+        "address": "/composition/connectnextcolumn",
+        "mode": "tap",
+        "on": 1,
+        "off": 0,
+        "width": 90
+       },
+       {
+        "type": "button",
+        "label": "CLEAR ALL",
+        "address": "/composition/disconnectall",
+        "mode": "tap",
+        "on": 1,
+        "off": 0,
+        "width": 120,
+        "colorWidget": "#c0504d"
+       },
+       {
+        "type": "fader",
+        "label": "MASTER",
+        "address": "/composition/master",
+        "range": {
+         "min": 0,
+         "max": 1
+        },
+        "colorWidget": "#62e2ba",
+        "doubleTap": true,
+        "horizontal": true,
+        "expand": true
+       }
+      ],
+      "padding": 2,
+      "innerPadding": false,
+      "height": 70
+     },
+     {
+      "type": "panel",
+      "layout": "horizontal",
+      "widgets": [
+       {
+        "type": "text",
+        "label": false,
+        "value": "Layer FX",
+        "width": 120
+       },
+       {
+        "type": "button",
+        "label": "◀",
+        "address": "/lavmfx/select/layer",
+        "mode": "tap",
+        "on": 1,
+        "off": 0,
+        "preArgs": [
+         -1
+        ],
+        "width": 50
+       },
+       {
+        "type": "button",
+        "label": "▶",
+        "address": "/lavmfx/select/layer",
+        "mode": "tap",
+        "on": 1,
+        "off": 0,
+        "preArgs": [
+         1
+        ],
+        "width": 50
+       },
+       {
+        "type": "text",
+        "label": false,
+        "value": "—",
+        "address": "/lavmfx/selected/layer",
+        "expand": true
+       }
+      ],
+      "padding": 2,
+      "innerPadding": false,
+      "height": 50
+     },
+     {
+      "type": "matrix",
+      "widgetType": "button",
+      "height": 60,
+      "layout": "horizontal",
+      "quantity": "#{((v) => typeof v === 'string' ? JSON.parse(v || '[]') : (v || []))(OSC{/lavmfx/fx/layer/toggles}).length}",
+      "props": "JS{ const p = ((v) => typeof v === 'string' ? JSON.parse(v || '[]') : (v || []))(OSC{/lavmfx/fx/layer/toggles})[$] || {}; return {label: p.l || '', address: p.a || '/lavmfx/none', mode: 'toggle', on: 1, off: 0, colorWidget: '#62e2ba', css: 'font-size:80%'} }"
+     },
+     {
+      "type": "matrix",
+      "widgetType": "panel",
+      "expand": true,
+      "layout": "grid",
+      "gridTemplate": 6,
+      "quantity": "#{((v) => typeof v === 'string' ? JSON.parse(v || '[]') : (v || []))(OSC{/lavmfx/fx/layer/ranges}).length}",
+      "props": "JS{ const p = ((v) => typeof v === 'string' ? JSON.parse(v || '[]') : (v || []))(OSC{/lavmfx/fx/layer/ranges})[$] || {}; return {layout: 'vertical', padding: 2, innerPadding: false, widgets: [{type: 'text', label: false, value: p.l || '', height: 34, css: 'font-size:75%'}, {type: 'fader', label: false, address: p.a || '/lavmfx/none', range: {min: 0, max: 1}, expand: true, doubleTap: true, colorWidget: '#62e2ba'}]} }"
+     }
+    ]
+   },
+   {
+    "type": "tab",
+    "id": "tab_fx_comp",
+    "label": "Comp FX",
+    "layout": "vertical",
+    "widgets": [
+     {
+      "type": "panel",
+      "layout": "horizontal",
+      "widgets": [
+       {
+        "type": "button",
+        "label": "TAP",
+        "address": "/composition/tempocontroller/tempotap",
+        "mode": "tap",
+        "on": 1,
+        "off": 0,
+        "width": 110,
+        "colorWidget": "#62e2ba"
+       },
+       {
+        "type": "text",
+        "label": false,
+        "value": "#{Math.round((OSC{/composition/tempocontroller/tempo, 0.2083}*480+20)*10)/10}",
+        "width": 90,
+        "css": "font-size:150%"
+       },
+       {
+        "type": "button",
+        "label": "−1",
+        "address": "/composition/tempocontroller/tempo",
+        "mode": "tap",
+        "on": "#{(Math.round((OSC{/composition/tempocontroller/tempo, 0.2083}*480+20))-1-20)/480}",
+        "off": 0,
+        "width": 60
+       },
+       {
+        "type": "button",
+        "label": "+1",
+        "address": "/composition/tempocontroller/tempo",
+        "mode": "tap",
+        "on": "#{(Math.round((OSC{/composition/tempocontroller/tempo, 0.2083}*480+20))+1-20)/480}",
+        "off": 0,
+        "width": 60
+       },
+       {
+        "type": "button",
+        "label": "RESYNC",
+        "address": "/composition/tempocontroller/resync",
+        "mode": "tap",
+        "on": 1,
+        "off": 0,
+        "width": 110
+       },
+       {
+        "type": "button",
+        "label": "◀ COL",
+        "address": "/composition/connectprevcolumn",
+        "mode": "tap",
+        "on": 1,
+        "off": 0,
+        "width": 90
+       },
+       {
+        "type": "button",
+        "label": "COL ▶",
+        "address": "/composition/connectnextcolumn",
+        "mode": "tap",
+        "on": 1,
+        "off": 0,
+        "width": 90
+       },
+       {
+        "type": "button",
+        "label": "CLEAR ALL",
+        "address": "/composition/disconnectall",
+        "mode": "tap",
+        "on": 1,
+        "off": 0,
+        "width": 120,
+        "colorWidget": "#c0504d"
+       },
+       {
+        "type": "fader",
+        "label": "MASTER",
+        "address": "/composition/master",
+        "range": {
+         "min": 0,
+         "max": 1
+        },
+        "colorWidget": "#62e2ba",
+        "doubleTap": true,
+        "horizontal": true,
+        "expand": true
+       }
+      ],
+      "padding": 2,
+      "innerPadding": false,
+      "height": 70
+     },
+     {
+      "type": "panel",
+      "layout": "horizontal",
+      "widgets": [
+       {
+        "type": "text",
+        "label": false,
+        "value": "Comp FX",
+        "width": 120
+       }
+      ],
+      "padding": 2,
+      "innerPadding": false,
+      "height": 50
+     },
+     {
+      "type": "matrix",
+      "widgetType": "button",
+      "height": 60,
+      "layout": "horizontal",
+      "quantity": "#{((v) => typeof v === 'string' ? JSON.parse(v || '[]') : (v || []))(OSC{/lavmfx/fx/comp/toggles}).length}",
+      "props": "JS{ const p = ((v) => typeof v === 'string' ? JSON.parse(v || '[]') : (v || []))(OSC{/lavmfx/fx/comp/toggles})[$] || {}; return {label: p.l || '', address: p.a || '/lavmfx/none', mode: 'toggle', on: 1, off: 0, colorWidget: '#62e2ba', css: 'font-size:80%'} }"
+     },
+     {
+      "type": "matrix",
+      "widgetType": "panel",
+      "expand": true,
+      "layout": "grid",
+      "gridTemplate": 6,
+      "quantity": "#{((v) => typeof v === 'string' ? JSON.parse(v || '[]') : (v || []))(OSC{/lavmfx/fx/comp/ranges}).length}",
+      "props": "JS{ const p = ((v) => typeof v === 'string' ? JSON.parse(v || '[]') : (v || []))(OSC{/lavmfx/fx/comp/ranges})[$] || {}; return {layout: 'vertical', padding: 2, innerPadding: false, widgets: [{type: 'text', label: false, value: p.l || '', height: 34, css: 'font-size:75%'}, {type: 'fader', label: false, address: p.a || '/lavmfx/none', range: {min: 0, max: 1}, expand: true, doubleTap: true, colorWidget: '#62e2ba'}]} }"
+     }
+    ]
+   }
+  ]
+ }
+}

@@ -1,0 +1,41 @@
+[workspace]
+resolver = "3"
+members = ["crates/*", "lavmfx"]
+default-members = ["lavmfx"]
+
+[workspace.package]
+version = "0.2.0"
+edition = "2024"
+license = "GPL-3.0-or-later"
+rust-version = "1.95"
+
+[workspace.dependencies]
+lavmfx-core = { path = "crates/core" }
+lavmfx-media = { path = "crates/media" }
+lavmfx-render = { path = "crates/render" }
+lavmfx-io = { path = "crates/io" }
+lavmfx-project = { path = "crates/project" }
+lavmfx-audio = { path = "crates/audio" }
+
+serde = { version = "1", features = ["derive"] }
+serde_json = { version = "1", features = ["preserve_order"] }
+indexmap = { version = "2", features = ["serde"] }
+thiserror = "2"
+log = "0.4"
+env_logger = "0.11"
+anyhow = "1"
+directories = "6"
+eframe = { version = "0.37", default-features = false, features = ["wgpu", "default_fonts", "wayland", "x11", "clipboard"] }
+wgpu = { version = "30", features = ["naga-ir"] }
+naga = { version = "30", features = ["glsl-in"] }
+regex = "1"
+bytemuck = { version = "1", features = ["derive"] }
+
+# Debug builds keep only line tables (backtraces still show file:line):
+# full debug info made target/ grow to 28 GB (user, 2026-11-24).
+[profile.dev]
+debug = "line-tables-only"
+
+[profile.dev.package."*"]
+opt-level = 2
+debug = false

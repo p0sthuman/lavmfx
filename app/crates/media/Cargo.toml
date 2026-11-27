@@ -1,0 +1,17 @@
+[package]
+name = "lavmfx-media"
+description = "Media decoding (ffmpeg, from M1), frame cache, GPU upload"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+ffmpeg-next = "9.1"
+libloading = "0.8"
+log.workspace = true
+snap = "1.1.2"
+thiserror.workspace = true
+
+[target.'cfg(target_os = "linux")'.dependencies]
+pipewire = { version = "0.10", features = ["v0_3_44"] } # PipeWire ≥ 0.3.44 (2022): target.object, trigger_process

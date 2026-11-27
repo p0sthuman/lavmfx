@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Name=LAVMFX
+GenericName=VJ / Projection Mapping
+Comment=Live Audio Visual Mapping FX Mixer (say "love-me-FX")
+Exec=lavmfx %F
+Icon=lavmfx
+Terminal=false
+Categories=AudioVideo;Video;
+Keywords=VJ;video;mixer;projection;mapping;live;
+MimeType=application/x-lavmfx;
+StartupWMClass=lavmfx

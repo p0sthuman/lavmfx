@@ -1,0 +1,14 @@
+[package]
+name = "lavmfx-project"
+description = "Native composition files (JSON) and .avc import"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+lavmfx-core.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+roxmltree = "0.20"

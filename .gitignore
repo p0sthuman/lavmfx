@@ -1,0 +1,43 @@
+# ---------------------------------------------------------------- build output
+/app/target/
+/dist/
+**/*.rs.bk
+# Debug self-screenshots / dumps (LAVMFX_SCREENSHOT=*.ppm, test card dumps)
+*.ppm
+
+# ---------------------------------------------------------------- credentials
+# Keep secrets in .env (never committed); share an .env.example with
+# placeholder values instead.
+.env
+.env.*
+!.env.example
+
+# ---------------------------------------------------------------- private: not ours to publish
+# Third-party material: screenshots, captured data, presets, help text and
+# notes made from them. Used for development only.
+/reference/
+# Media of unknown licence and the user's own shows / compositions.
+/samples/
+/Compositions/
+*.avc
+
+# ---------------------------------------------------------------- private: personal notes
+/todo.md
+/NAMES.md
+# Development notes still holding local paths; public
+# docs (README, ROADMAP, CONTRIBUTING, …) get written separately.
+/PLAN.md
+/STATUS.md
+/docs/history/
+
+# ---------------------------------------------------------------- editors / OS / tools
+.obsidian/
+.vscode/
+.idea/
+*.swp
+*~
+.DS_Store
+Thumbs.db
+*.log
+# Claude Code's local settings (permissions of this machine)
+.claude/settings.local.json

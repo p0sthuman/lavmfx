@@ -1,0 +1,19 @@
+[package]
+name = "lavmfx-render"
+description = "wgpu render graph: layers, effects, blending, outputs"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+wgpu.workspace = true
+naga.workspace = true
+regex.workspace = true
+bytemuck.workspace = true
+lavmfx-media.workspace = true
+log.workspace = true
+
+[dev-dependencies]
+pollster = "0.4"
+lavmfx-core.workspace = true

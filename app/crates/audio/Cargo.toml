@@ -1,0 +1,19 @@
+[package]
+name = "lavmfx-audio"
+description = "Audio devices (cpal), FFT analysis, clip audio mixing"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+lavmfx-core.workspace = true
+lavmfx-media.workspace = true
+log.workspace = true
+realfft = "3.5"
+
+[target.'cfg(target_os = "linux")'.dependencies]
+cpal = { version = "0.18.2", features = ["pulseaudio"] }
+
+[target.'cfg(not(target_os = "linux"))'.dependencies]
+cpal = "0.18.2"
