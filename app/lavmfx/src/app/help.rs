@@ -149,7 +149,7 @@ impl LavmfxApp {
                 ui.separator();
                 ui.add(
                     egui::Label::new(
-                        "Copyright (C) 2026 p0sthuman and contributors. LAVMFX is free software under the \
+                        "Copyright (C) 2026 Kage Bunshin (p0sthuman). LAVMFX is free software under the \
                          GNU General Public License, version 3 or later, and comes with no warranty.",
                     )
                     .wrap(),

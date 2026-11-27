@@ -4,6 +4,8 @@
 
 **Live Audio Visual Mapping FX Mixer**, say it **"love-me-FX"**.
 
+Made by VJ Kage Bunshin.
+
 LAVMFX is a **cross-platform**, free and open-source VJ and projection-mapping
 app for live shows: trigger video clips from a grid, mix layers with blend
 modes and transitions, stack real-time effects, drive any parameter from the
@@ -115,7 +117,7 @@ code are welcome, see [CONTRIBUTING.md](CONTRIBUTING.md) (AI coding agents:
 
 ## Licence
 
-Copyright (C) 2026 p0sthuman. LAVMFX is free software under the
+Copyright (C) 2026 Kage Bunshin (p0sthuman). LAVMFX is free software under the
 [GNU General Public License v3.0 or later](LICENSE). Packages also bundle
 third-party software, see [`packaging/THIRD-PARTY.md`](packaging/THIRD-PARTY.md).
 Resolume and Arena are trademarks of their owner; LAVMFX is an independent

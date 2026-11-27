@@ -1,6 +1,6 @@
 # Third-party software in LAVMFX packages
 
-LAVMFX itself is Copyright (C) 2026 p0sthuman, under the GNU General Public
+LAVMFX itself is Copyright (C) 2026 Kage Bunshin (p0sthuman), under the GNU General Public
 License v3.0 or later (`LICENSE`). Its source code:
 <https://github.com/p0sthuman/lavmfx>.
 
