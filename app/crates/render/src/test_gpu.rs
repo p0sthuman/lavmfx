@@ -14,6 +14,14 @@ pub(crate) fn gpu() -> Option<(wgpu::Device, wgpu::Queue)> {
         };
         let info = adapter.get_info();
         eprintln!("test GPU: {} ({:?}, {:?})", info.name, info.backend, info.device_type);
+        // CI on Windows has only WARP, which loses the device on the effects shader.
+        if info.device_type == wgpu::DeviceType::Cpu && std::env::var_os("LAVMFX_TEST_SKIP_SOFTWARE_GPU").is_some() {
+            eprintln!(
+                "skipping: software GPU only ({}) and LAVMFX_TEST_SKIP_SOFTWARE_GPU set",
+                info.name
+            );
+            return None;
+        }
         let desc = wgpu::DeviceDescriptor {
             required_features: adapter.features() & crate::WANTED_FEATURES,
             ..Default::default()

@@ -40,7 +40,10 @@ jobs:
           sudo apt-get install -y --no-install-recommends \
             build-essential pkg-config cmake clang libclang-dev \
             libasound2-dev libpipewire-0.3-dev libspa-0.2-dev \
-            mesa-vulkan-drivers libvulkan1 libegl1 libegl-dev libgl-dev libglew-dev
+            mesa-vulkan-drivers libvulkan1 libegl1 libegl-dev libgl-dev libglew-dev \
+            libva2 libva-drm2 libva-x11-2 libva-wayland2 libvdpau1
+          # libva / libvdpau: the BtbN FFmpeg build aborts (not just fails) when it
+          # tries hardware decoding and these libraries are missing.
       - name: Rust
         run: |
           rustup toolchain install "$RUST_VERSION" --profile minimal -c clippy,rustfmt
@@ -122,6 +125,10 @@ jobs:
       - name: Check
         env:
           LAVMFX_CHECK_LOGS: ${{ runner.temp }}/check-logs
+          # The runner has no GPU, only WARP (Microsoft Basic Render Driver),
+          # which loses the device while compiling the effects shader. The
+          # render tests skip (listed as NOT CHECKED); Linux runs them on lavapipe.
+          LAVMFX_TEST_SKIP_SOFTWARE_GPU: "1"
         run: tools/check.sh --no-cross
       - uses: actions/upload-artifact@v4
         if: always()

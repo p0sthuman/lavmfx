@@ -62,7 +62,7 @@ cache=${XDG_CACHE_HOME:-$HOME/.cache}/lavmfx/ffgl-test/plugins
 if [[ -z ${LAVMFX_FFGL_TEST:-} && -d $cache ]]; then
     export LAVMFX_FFGL_TEST=$cache
 fi
-run "tests ($os)" test cargo test --workspace --locked -- --nocapture
+run "tests ($os)" test cargo test --workspace --locked --no-fail-fast -- --nocapture
 # Tests that can't run here print a line with "skipping" and pass: list them.
 if [[ -f $logs/test.log ]]; then
     while read -r n line; do
