@@ -29,6 +29,27 @@ delete this file, and its pointer in `AGENTS.md`, once the checks under
    only (both MIT / Apache-2.0). `Cargo.lock` gained those two edges, no version
    changes.
 
+### Done on Linux, 2026-11-28 (CachyOS, Rust 1.100.0, RTX 3070 Laptop)
+
+All six pass; nothing in the branch needed changing.
+
+1. Release build OK. Tests: 288 passed, 0 failed, 8 ignored. Clippy: no warnings.
+2. FFGL: the EGL context comes up on the NVIDIA GPU (the name hint still picks
+   it). The FFGL SDK samples (built by the new `tools/ffgl-test-plugins.sh`):
+   the host test loads all five and runs AddSub (red stays red), Events,
+   Gradient and Particles. Same results on Mesa's software OpenGL with no
+   display. In the app, Particles runs as a source and AddSub as a composition
+   effect (screenshot, ~39 fps).
+3. `slices.rs` and the other render tests pass on the shared device.
+4. `paths.rs` / `avc.rs` tests pass.
+5. `build-linux-native.sh` OK: `LICENSE` and `licenses/` in the package, no
+   home-folder paths in the binary, no CRLF in `*.sh`.
+6. `lavmfx-io` on Linux depends on `glow` + `khronos-egl` only. The lockfile
+   gained just the two Windows edges.
+
+Also: `cargo clippy --workspace --all-targets` for `x86_64-pc-windows-gnullvm`
+(the cross-build target) has no warnings, so the new Windows code builds there too.
+
 ## Fix: white line on fullscreen outputs
 
 `output.rs` `place_window` now sends `ViewportCommand::Decorations(false)` right
