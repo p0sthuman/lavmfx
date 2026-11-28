@@ -16,6 +16,9 @@ What changed in each LAVMFX release. Downloads are on the
 ### Fixed
 
 - **Windows**: a thin white line along the top of fullscreen outputs.
+- **Linux portable package**: the app closed when it played an H.264 / HEVC /
+  VP9 / AV1 clip on a system without libva (VA-API) installed. It now decodes
+  those clips on the CPU there.
 
 ## 0.2.5 (pre-release)
 
