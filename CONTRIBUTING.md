@@ -53,14 +53,11 @@ The Rust workspace is in `app/`:
 ## Pull requests
 
 - Keep each PR to one change, and explain what it does and why.
-- Before you push, run:
-  ```sh
-  cd app
-  cargo fmt --all
-  cargo clippy --workspace --all-targets
-  cargo test --workspace
-  ```
-  Clippy should stay free of warnings.
+- Before you push, run `cargo fmt --all` (in `app/`), then `tools/check.sh`
+  (Git Bash on Windows). It runs rustfmt, clippy (no warnings allowed) and the
+  tests, and lists any tests that were skipped on your machine. CI then builds
+  and tests the branch on Linux and Windows and compile-checks macOS; a PR
+  needs CI to pass.
 - Add tests for logic changes (model, parsing, import, DSP). For UI changes,
   add a screenshot to the PR.
 - UI code uses the shared widgets in `app/lavmfx/src/app/widgets.rs`, and

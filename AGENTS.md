@@ -10,8 +10,8 @@ NDI, recording, and import of Resolume Arena `.avc` files. Licence:
 GPL-3.0-or-later.
 
 **Open handoff:** [docs/windows-handoff.md](docs/windows-handoff.md) (Windows
-work of 2026-11-28, not yet checked on Linux). Read it before working on FFGL,
-video sharing, render tests or packaging.
+work of 2026-11-28; checked on Linux the same day, merge pending). Read it
+before working on FFGL, video sharing, render tests or packaging.
 
 ## Hard rules
 
@@ -54,12 +54,48 @@ shared build; the environment variables are listed under "Building on Windows"
 in [packaging/README.md](packaging/README.md). The app and the tests need
 FFmpeg's `bin\` on `PATH`.
 
-Code behind `cfg(windows)` / `cfg(target_os = "linux")` is only compiled on that
-system. After changing shared code around it (FFGL, `share.rs`, Cargo targets),
-say which systems you built on.
+Before you say a change is done, run **`tools/check.sh`** (from Git Bash on
+Windows). It runs rustfmt, clippy with `-D warnings` and the tests, and on Linux
+also clippy for Windows through the cross toolchain. It ends with a summary.
+Report that summary as it is: every FAIL with its output, and every NOT CHECKED
+line. A test that skips still says "ok", so it is not a pass. Never write
+"tests pass" when the summary lists skips that touch your change.
 
-Before you say a change is done: `cargo fmt --all`, clippy clean, and
-`cargo test --workspace` passing. Report failures as they are, with the output.
+## Working across Linux, Windows and macOS
+
+The app ships for Linux and Windows; macOS is planned. Each system compiles
+only its own `cfg(...)` code, so a change can build here and break elsewhere.
+
+- **CI** (`.github/workflows/ci.yml`) runs `tools/check.sh` on Linux and Windows
+  for every push and pull request, and compile-checks macOS. Don't merge a
+  branch whose CI is red, or whose CI hasn't run.
+- **Locally:** on Linux, `tools/check.sh` also checks the Windows code. On
+  Windows nothing checks the Linux code, so push the branch and read CI before
+  you say it works.
+- **Keep platform code apart.** Put each system's code in its own `cfg` module
+  with the same functions (see `mod context` in `crates/io/src/ffgl.rs`, or
+  `share.rs` / `spout.rs`), and keep shared logic outside the `cfg`. When you
+  move code you can't compile, move it without changing it, in its own commit.
+- **Test inputs come from a script, not a scratch folder.** If a test needs
+  files from outside the repo (plugins, an SDK, media), add or reuse a script
+  in `tools/` that fetches a pinned version and builds them (for example
+  `tools/ffgl-test-plugins.sh`). The test skips when they're missing, with a
+  message that contains "skipping" and names the script.
+- **Handoffs.** If you can't build or run part of a change on a system it
+  affects, write `docs/<topic>-handoff.md` with a "Do on <system>, before
+  merging" list of exact commands. Link it at the top of this file. The next
+  agent on that system works through the list and records the results there.
+  The handoff and its link are deleted when the branch is merged.
+
+| Needed for | Linux | Windows | macOS |
+|---|---|---|---|
+| Build + tests | here | MSVC; or cross-check from Linux (`tools/check.sh`) | CI only (compile check) |
+| FFGL host test | `tools/ffgl-test-plugins.sh`, then `tools/check.sh` | no test plugins yet: try one plugin by hand | not built |
+| Packages | `packaging/build-linux-*.sh` | `packaging/build-windows-native.sh` (Git Bash) | not yet |
+
+`packaging/*` scripts write into `dist/` under the release's version number.
+Before running one for a check, move that version's existing packages aside
+and put them back afterwards, so you don't overwrite a published release.
 
 ## Layout
 
@@ -72,6 +108,8 @@ Before you say a change is done: `cargo fmt --all`, clippy clean, and
 | `app/crates/io` | OSC, MIDI, Ableton Link, REST server, FFGL host (EGL / WGL), Art-Net / sACN |
 | `app/crates/project` | `.lavmfx` load / save, `.avc` import, media path resolution, fixture library |
 | `app/lavmfx` | The app (egui): `src/app.rs` main window, `src/app/*` panels, `src/output.rs` output windows |
+| `tools/` | `check.sh` (the checks before "done"), `ffgl-test-plugins.sh` (FFGL test plugins) |
+| `.github/workflows/` | CI: Linux, Windows, macOS |
 | `packaging/` | Portable build scripts (Linux native, Linux portable + AppImage in a podman container, Windows cross-build, Windows native build + installer) |
 
 ## Code conventions
