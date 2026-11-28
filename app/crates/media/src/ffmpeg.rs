@@ -508,8 +508,19 @@ unsafe fn attach_hw(
             }
         }
         let pix = pix?;
+        let mut opts: *mut ffi::AVDictionary = ptr::null_mut();
+        if ty == ffi::AVHWDeviceType::AV_HWDEVICE_TYPE_VAAPI {
+            if !vaapi_libraries_present() {
+                return None;
+            }
+            // A DRM render node only: FFmpeg's fallback to an X11 display
+            // would need libX11 / libva-x11 too (see `vaapi_libraries_present`).
+            ffi::av_dict_set(&mut opts, c"connection_type".as_ptr(), c"drm".as_ptr(), 0);
+        }
         let mut dev: *mut ffi::AVBufferRef = ptr::null_mut();
-        if ffi::av_hwdevice_ctx_create(&mut dev, ty, ptr::null(), ptr::null_mut(), 0) < 0 {
+        let created = ffi::av_hwdevice_ctx_create(&mut dev, ty, ptr::null(), opts, 0);
+        ffi::av_dict_free(&mut opts);
+        if created < 0 {
             return None;
         }
         let c = ctx.as_mut_ptr();
@@ -521,6 +532,35 @@ unsafe fn attach_hw(
             .into_owned();
         Some((name, Pixel::from(pix)))
     }
+}
+
+/// Libraries FFmpeg's VAAPI device (DRM connection) loads.
+const VAAPI_LIBRARIES: &[&str] = &["libva.so.2", "libva-drm.so.2", "libdrm.so.2"];
+
+/// Whether VAAPI's libraries can be loaded. Some FFmpeg builds, including the
+/// one bundled with the portable Linux package, reach them through stubs that
+/// abort the whole process when a library is missing instead of returning an
+/// error. So VAAPI is only tried when all of them load. Checked once.
+fn vaapi_libraries_present() -> bool {
+    static PRESENT: std::sync::OnceLock<bool> = std::sync::OnceLock::new();
+    *PRESENT.get_or_init(|| {
+        let missing = missing_libraries(VAAPI_LIBRARIES);
+        if !missing.is_empty() {
+            log::info!("VAAPI hardware decoding off: {} not installed", missing.join(", "));
+        }
+        missing.is_empty()
+    })
+}
+
+/// The libraries in `names` that the dynamic loader can't open.
+fn missing_libraries<'a>(names: &[&'a str]) -> Vec<&'a str> {
+    // SAFETY: these are system libraries whose initialisers have no side
+    // effects we rely on; the handle is closed again right away.
+    names
+        .iter()
+        .copied()
+        .filter(|n| unsafe { libloading::Library::new(n) }.is_err())
+        .collect()
 }
 
 /// Pick the hw pixel format if offered, else let FFmpeg choose a software one.
@@ -623,4 +663,17 @@ pub(crate) fn rows(data: &[u8], stride: usize, row: usize, n: usize) -> Vec<u8> 
         v.extend_from_slice(&r[..row]);
     }
     v
+}
+
+#[cfg(test)]
+mod tests {
+    use super::missing_libraries;
+
+    #[test]
+    fn missing_libraries_are_reported() {
+        let absent = "liblavmfx-no-such-library.so.9";
+        assert_eq!(missing_libraries(&[absent]), [absent]);
+        #[cfg(target_os = "linux")]
+        assert!(missing_libraries(&["libc.so.6"]).is_empty());
+    }
 }
