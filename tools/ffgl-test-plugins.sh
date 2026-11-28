@@ -10,8 +10,10 @@
 # Needs git, g++, GLEW and OpenGL development files (Arch: glew, mesa).
 #
 # One patch: the SDK only calls glewInit on Windows, so on Linux every GL call
-# in a plugin would jump to null. We add a Linux branch that runs
-# glewContextInit (no GLX needed; works with our EGL context).
+# in a plugin would jump to null. We add a Linux branch that calls glewInit
+# too. With our EGL context it loads every GL function and then reports "no
+# GLX display", which is fine here. (glewContextInit would skip the GLX step,
+# but GLEW 2.2, Ubuntu 24.04's, doesn't declare it.)
 set -euo pipefail
 
 commit=5b6e07840277df9ec35a228b9eb067636316350f
@@ -27,21 +29,23 @@ git -C "$src" fetch -q origin "$commit" 2>/dev/null || true
 git -C "$src" checkout -q --force "$commit"
 
 file="$src/source/lib/ffgl/FFGL.cpp"
-if ! grep -q "glewContextInit" "$file"; then
+git -C "$src" checkout -q -- "$file" # an older patch may be applied
+if ! grep -q "__linux__" "$file"; then
     # Insert before the "#else" of InitGLExts' "#if defined( FFGL_WINDOWS )".
     awk '
         /^bool InitGLExts\(\)/ { inside = 1 }
         inside && /^#else/ {
             print "#elif defined( __linux__ )"
             print "\tglewExperimental = GL_TRUE;"
-            print "\treturn glewContextInit() == GLEW_OK;"
+            print "\tGLenum r = glewInit();"
+            print "\treturn r == GLEW_OK || r == GLEW_ERROR_NO_GLX_DISPLAY;"
             inside = 0
         }
         { print }
     ' "$file" > "$file.new"
     mv "$file.new" "$file"
 fi
-grep -q "glewContextInit" "$file" || { echo "patch failed: $file" >&2; exit 1; }
+grep -q "__linux__" "$file" || { echo "patch failed: $file" >&2; exit 1; }
 
 mkdir -p "$plugins"
 for p in Add AddSubtract Events Gradients Particles; do

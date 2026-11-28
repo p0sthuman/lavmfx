@@ -12,11 +12,15 @@ pub(crate) fn gpu() -> Option<(wgpu::Device, wgpu::Queue)> {
             eprintln!("no GPU adapter; skipping");
             return None;
         };
+        let info = adapter.get_info();
+        eprintln!("test GPU: {} ({:?}, {:?})", info.name, info.backend, info.device_type);
         let desc = wgpu::DeviceDescriptor {
             required_features: adapter.features() & crate::WANTED_FEATURES,
             ..Default::default()
         };
-        Some(pollster::block_on(adapter.request_device(&desc)).unwrap())
+        Some(
+            pollster::block_on(adapter.request_device(&desc)).unwrap_or_else(|e| panic!("test GPU {}: {e}", info.name)),
+        )
     })
     .clone()
 }

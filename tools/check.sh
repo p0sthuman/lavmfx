@@ -20,7 +20,13 @@ root=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 app="$root/app"
 cross=1
 [[ ${1:-} == --no-cross ]] && cross=0
-logs=$(mktemp -d "${TMPDIR:-/tmp}/lavmfx-check.XXXXXX")
+# LAVMFX_CHECK_LOGS: where the logs go (CI uploads them); else a new temp folder.
+if [[ -n ${LAVMFX_CHECK_LOGS:-} ]]; then
+    logs=$LAVMFX_CHECK_LOGS
+    mkdir -p "$logs"
+else
+    logs=$(mktemp -d "${TMPDIR:-/tmp}/lavmfx-check.XXXXXX")
+fi
 summary=()
 failed=0
 
@@ -33,6 +39,9 @@ run() { # run <name> <log-name> <command…>
     else
         summary+=("FAIL         $name  (log: $log)")
         failed=1
+        # Panics (with the lines after them) first: the tail alone loses them.
+        grep -E -A8 "panicked at|^---- " "$log" | head -n 200
+        echo "…"
         tail -n 30 "$log"
     fi
 }
@@ -58,7 +67,7 @@ run "tests ($os)" test cargo test --workspace --locked -- --nocapture
 if [[ -f $logs/test.log ]]; then
     while read -r n line; do
         not_checked "test skipped ${n}×" "$line"
-    done < <(grep -i "skipping" "$logs/test.log" | sed 's/^[[:space:]]*//' | sort | uniq -c)
+    done < <(grep -io "skipping.*" "$logs/test.log" | sort | uniq -c)
 fi
 
 if [[ $os == linux ]]; then

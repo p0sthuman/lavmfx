@@ -74,7 +74,13 @@ jobs:
         env:
           EGL_PLATFORM: surfaceless # no display on the runner
           WGPU_BACKEND: vulkan
+          LAVMFX_CHECK_LOGS: ${{ runner.temp }}/check-logs
         run: tools/check.sh --no-cross
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: check-logs-linux
+          path: ${{ runner.temp }}/check-logs
 
   windows:
     runs-on: windows-2022
@@ -114,12 +120,19 @@ jobs:
           key: cargo-windows-${{ env.RUST_VERSION }}-${{ hashFiles('app/Cargo.lock') }}
           restore-keys: cargo-windows-${{ env.RUST_VERSION }}-
       - name: Check
+        env:
+          LAVMFX_CHECK_LOGS: ${{ runner.temp }}/check-logs
         run: tools/check.sh --no-cross
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: check-logs-windows
+          path: ${{ runner.temp }}/check-logs
 
   # Compile check only, and not yet required: the macOS port hasn't started.
   # Its job is to show early when shared code stops building there.
   macos:
-    runs-on: macos-14
+    runs-on: macos-latest
     timeout-minutes: 60
     continue-on-error: true
     steps:
