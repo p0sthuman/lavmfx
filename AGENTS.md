@@ -139,14 +139,13 @@ LAVMFX_SCREENSHOT=/tmp/shot.ppm timeout 20 cargo run --release
 
 The app keeps running after the shot, so always wrap it in `timeout`. More
 `LAVMFX_SCREENSHOT_*` variables open particular panels or states first:
-`grep -rn "LAVMFX_SCREENSHOT_" app/lavmfx/src`. Use a scratch
-`XDG_CONFIG_HOME` so the user's settings aren't changed, and a null audio
-sink, or none, so nothing is heard.
+`grep -rn "LAVMFX_SCREENSHOT_" app/lavmfx/src`. Set `LAVMFX_HOME` to a
+scratch folder so the user's settings aren't read or changed (works on every
+system; settings, compositions, recordings and the Windows log go in there),
+and use a null audio sink, or none, so nothing is heard.
 
-On Windows `XDG_CONFIG_HOME` is ignored: settings and the log are always in
-`%APPDATA%\lavmfx`. Check that the app isn't running, move that folder aside,
-run, and put it back. There is no `timeout` for this either: start the process
-and end it after about 20 s.
+On Windows there is no `timeout`: start the process and end it after about
+20 s.
 
 Other hooks: `LAVMFX_PRESENT=vsync|novsync|fifo|mailbox|immediate` (present
 mode), `WGPU_BACKEND=vulkan|dx12|…`, `RUST_LOG=…` (Windows release builds log

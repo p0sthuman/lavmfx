@@ -3,6 +3,7 @@
 
 mod app;
 mod audio;
+mod dirs;
 mod dmx;
 mod live_out;
 mod output;
@@ -121,10 +122,10 @@ pub(crate) mod present {
     }
 }
 
-/// The app's settings / data folders (`~/.config/lavmfx`, `~/.local/share/lavmfx`
-/// on Linux; `%APPDATA%\lavmfx` on Windows).
-pub(crate) fn app_dirs() -> Option<directories::ProjectDirs> {
-    directories::ProjectDirs::from("", "", "lavmfx")
+/// The app's settings / data folders: the system's per-user folders, or a
+/// portable folder next to the program (see `dirs`).
+pub(crate) fn app_dirs() -> Option<&'static dirs::AppDirs> {
+    dirs::get()
 }
 
 /// Log to stderr; Windows release builds have no console, so they write
@@ -156,6 +157,11 @@ fn init_logging() {
         std::env::consts::ARCH,
         env!("LAVMFX_BUILD")
     );
+    match app_dirs() {
+        Some(d) if d.portable_root().is_some() => log::info!("portable: settings in {}", d.config_dir().display()),
+        Some(d) => log::info!("settings in {}", d.config_dir().display()),
+        None => log::warn!("no settings folder found; using the current folder"),
+    }
 }
 
 fn main() -> eframe::Result {

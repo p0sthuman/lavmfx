@@ -12,6 +12,10 @@ What changed in each LAVMFX release. Downloads are on the
 - **Windows: FFGL** 2.x effect and source plugins (`.dll`).
 - **Windows**: `packaging/build-windows-native.sh` builds the portable `.zip`
   and a setup `.exe` on Windows.
+- **Portable mode**: with a folder named `lavmfx-data` next to the program
+  (or the `.AppImage`), settings, compositions, recordings and the log are
+  kept in there, so a setup can be copied to another computer.
+  `LAVMFX_HOME=<folder>` does the same for any folder.
 
 ### Fixed
 

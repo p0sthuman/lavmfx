@@ -10,8 +10,12 @@ use lavmfx_media::record::{self, RecordSettings, Recorder};
 use super::LavmfxApp;
 
 /// Default output folder `<Videos or home>/LAVMFX/<sub>`: on the Linux drive
-/// (writes to NTFS from Linux are slow), not next to the media.
+/// (writes to NTFS from Linux are slow), not next to the media. In portable
+/// mode `<portable folder>/recordings/<sub>`, so it travels with the setup.
 pub fn default_folder(sub: &str) -> PathBuf {
+    if let Some(root) = crate::app_dirs().and_then(|d| d.portable_root()) {
+        return root.join("recordings").join(sub);
+    }
     let base = directories::UserDirs::new()
         .and_then(|u| u.video_dir().map(PathBuf::from))
         .or_else(|| directories::UserDirs::new().map(|u| u.home_dir().to_path_buf()))

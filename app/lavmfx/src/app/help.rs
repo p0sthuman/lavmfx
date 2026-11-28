@@ -99,9 +99,14 @@ impl LavmfxApp {
             && ui
                 .button("Show Settings Folder")
                 .on_hover_text(format!(
-                    "Preferences, layouts and presets{}\n{}",
+                    "Preferences, layouts and presets{}{}\n{}",
                     if cfg!(windows) {
                         "; lavmfx.log is in the data folder next to it"
+                    } else {
+                        ""
+                    },
+                    if crate::app_dirs().is_some_and(|d| d.portable_root().is_some()) {
+                        " (portable: in the lavmfx-data folder next to the program)"
                     } else {
                         ""
                     },

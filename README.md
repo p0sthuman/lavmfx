@@ -83,8 +83,14 @@ Builds come as portable folders: unpack and run, nothing is installed.
 Start `lavmfx` (or `lavmfx.exe`). In the Linux folders,
 `./install-menu-entry.sh` adds LAVMFX to your application menu.
 
-Settings live in `~/.config/lavmfx` (Linux) or `%APPDATA%\lavmfx\config` (Windows).
-Compositions are saved as `.lavmfx` files.
+Settings live in `~/.config/lavmfx` (Linux) or `%APPDATA%\lavmfx\config` (Windows);
+Help › Show Settings Folder opens it. Compositions are saved as `.lavmfx` files.
+
+**Portable mode:** make an empty folder named `lavmfx-data` next to the program
+(for the AppImage: next to the `.AppImage` file). LAVMFX then keeps its
+settings, compositions, recordings and log in there, so you can copy the
+whole folder to another computer or a USB stick and keep your setup.
+`LAVMFX_HOME=<folder>` does the same with any folder.
 
 Optional at run time: the [NDI runtime](https://ndi.video/) for NDI sources and
 outputs (Preferences › NDI).
@@ -92,7 +98,7 @@ outputs (Preferences › NDI).
 ### If something goes wrong
 
 - **Log file**: Linux builds log to the terminal. Windows builds write
-  `%APPDATA%\lavmfx\data\lavmfx.log`; its first line names the build. A crash
+  `%APPDATA%\lavmfx\data\lavmfx.log` (portable: `lavmfx-data\data\lavmfx.log`); its first line names the build. A crash
   or a stuck screen (the "watchdog" lines) is recorded there. Attach it to
   [bug reports](https://github.com/p0sthuman/lavmfx/issues).
 - **Graphics**: LAVMFX uses Vulkan by default. `WGPU_BACKEND=dx12` (Windows)
