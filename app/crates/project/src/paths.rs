@@ -291,7 +291,12 @@ mod tests {
         // Unmapped drive found on a mount point, case-insensitively.
         let b = r.resolve(r"D:\vj content\dxv\LOOP ONE.mov");
         assert!(b.exists, "{b:?}");
-        assert_eq!(b.path, t.join("mnt/local/VJ Content/DXV/Loop One.mov"));
+        // Canonical forms: where names ignore case (Windows), the path keeps the
+        // saved spelling and still names the same file.
+        assert_eq!(
+            b.path.canonicalize().unwrap(),
+            t.join("mnt/local/VJ Content/DXV/Loop One.mov").canonicalize().unwrap()
+        );
         assert_eq!(r.guessed_drives(), vec![('D', t.join("mnt/local"))]);
         // Relative to the .avc, and same name next to it.
         assert!(r.resolve(r"sub\rel.mov").exists);

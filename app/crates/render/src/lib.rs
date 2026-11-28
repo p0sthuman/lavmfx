@@ -25,6 +25,8 @@ mod effects;
 pub mod isf;
 mod outline;
 pub mod slices;
+#[cfg(test)]
+mod test_gpu;
 mod video;
 pub use effects::{EFFECT_PARAMS, EXT_KIND_BASE, EffectDraw, ExternalFx, FxFrame, FxImage, FxSlice, read_texture};
 use effects::{EffectPass, target_texture};
@@ -1087,19 +1089,7 @@ fn blend_wgsl() -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    fn gpu() -> Option<(wgpu::Device, wgpu::Queue)> {
-        let instance = wgpu::Instance::new(wgpu::InstanceDescriptor::new_without_display_handle_from_env());
-        let Ok(adapter) = pollster::block_on(instance.request_adapter(&Default::default())) else {
-            eprintln!("no GPU adapter; skipping");
-            return None;
-        };
-        let desc = wgpu::DeviceDescriptor {
-            required_features: adapter.features() & WANTED_FEATURES,
-            ..Default::default()
-        };
-        Some(pollster::block_on(adapter.request_device(&desc)).unwrap())
-    }
+    use crate::test_gpu::gpu;
 
     /// Read the composition texture back as RGBA rows (width must be a multiple of 64).
     fn read_back(device: &wgpu::Device, queue: &wgpu::Queue, comp: &Compositor) -> Vec<u8> {

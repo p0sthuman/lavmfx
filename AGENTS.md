@@ -9,6 +9,10 @@ GPU effects, audio-reactive control, mapping, DMX, MIDI / OSC / REST control,
 NDI, recording, and import of Resolume Arena `.avc` files. Licence:
 GPL-3.0-or-later.
 
+**Open handoff:** [docs/windows-handoff.md](docs/windows-handoff.md) (Windows
+work of 2026-11-28; checked on Linux the same day, merge pending). Read it
+before working on FFGL, video sharing, render tests or packaging.
+
 ## Hard rules
 
 1. **No third-party creative content or closed-source code.** Never add
@@ -45,8 +49,53 @@ Needs Rust 1.95+, a C/C++ compiler, CMake, clang, and the FFmpeg 8 / 9,
 PipeWire and ALSA development files (Linux). The release build takes several
 minutes; prefer `cargo check` / `cargo test -p <crate>` while iterating.
 
-Before you say a change is done: `cargo fmt --all`, clippy clean, and
-`cargo test --workspace` passing. Report failures as they are, with the output.
+On Windows: the MSVC toolchain, CMake, LLVM (libclang) and an FFmpeg 8 / 9
+shared build; the environment variables are listed under "Building on Windows"
+in [packaging/README.md](packaging/README.md). The app and the tests need
+FFmpeg's `bin\` on `PATH`.
+
+Before you say a change is done, run **`tools/check.sh`** (from Git Bash on
+Windows). It runs rustfmt, clippy with `-D warnings` and the tests, and on Linux
+also clippy for Windows through the cross toolchain. It ends with a summary.
+Report that summary as it is: every FAIL with its output, and every NOT CHECKED
+line. A test that skips still says "ok", so it is not a pass. Never write
+"tests pass" when the summary lists skips that touch your change.
+
+## Working across Linux, Windows and macOS
+
+The app ships for Linux and Windows; macOS is planned. Each system compiles
+only its own `cfg(...)` code, so a change can build here and break elsewhere.
+
+- **CI** (`.github/workflows/ci.yml`) runs `tools/check.sh` on Linux and Windows
+  for every push and pull request, and compile-checks macOS. Don't merge a
+  branch whose CI is red, or whose CI hasn't run.
+- **Locally:** on Linux, `tools/check.sh` also checks the Windows code. On
+  Windows nothing checks the Linux code, so push the branch and read CI before
+  you say it works.
+- **Keep platform code apart.** Put each system's code in its own `cfg` module
+  with the same functions (see `mod context` in `crates/io/src/ffgl.rs`, or
+  `share.rs` / `spout.rs`), and keep shared logic outside the `cfg`. When you
+  move code you can't compile, move it without changing it, in its own commit.
+- **Test inputs come from a script, not a scratch folder.** If a test needs
+  files from outside the repo (plugins, an SDK, media), add or reuse a script
+  in `tools/` that fetches a pinned version and builds them (for example
+  `tools/ffgl-test-plugins.sh`). The test skips when they're missing, with a
+  message that contains "skipping" and names the script.
+- **Handoffs.** If you can't build or run part of a change on a system it
+  affects, write `docs/<topic>-handoff.md` with a "Do on <system>, before
+  merging" list of exact commands. Link it at the top of this file. The next
+  agent on that system works through the list and records the results there.
+  The handoff and its link are deleted when the branch is merged.
+
+| Needed for | Linux | Windows | macOS |
+|---|---|---|---|
+| Build + tests | here | MSVC; or cross-check from Linux (`tools/check.sh`) | CI only (compile check) |
+| FFGL host test | `tools/ffgl-test-plugins.sh`, then `tools/check.sh` | no test plugins yet: try one plugin by hand | not built |
+| Packages | `packaging/build-linux-*.sh` | `packaging/build-windows-native.sh` (Git Bash) | not yet |
+
+`packaging/*` scripts write into `dist/` under the release's version number.
+Before running one for a check, move that version's existing packages aside
+and put them back afterwards, so you don't overwrite a published release.
 
 ## Layout
 
@@ -54,12 +103,14 @@ Before you say a change is done: `cargo fmt --all`, clippy clean, and
 |---|---|
 | `app/crates/core` | Composition model, parameters, undo history, effect / source catalogues (`data/*.json`), parameter animation (`drive`), clock / transport, control addresses (OSC / REST), DMX and output models |
 | `app/crates/render` | wgpu compositor, WGSL effects (`src/shaders/effects.wgsl`), slices and warping, ISF |
-| `app/crates/media` | FFmpeg decoding, player threads, HAP, audio files, recording, NDI, PipeWire sharing, capture |
+| `app/crates/media` | FFmpeg decoding, player threads, HAP, audio files, recording, NDI, shared video (`share.rs`: PipeWire; `spout.rs`: Spout), capture |
 | `app/crates/audio` | Audio devices, FFT, the audio mixer and audio effects |
-| `app/crates/io` | OSC, MIDI, Ableton Link, REST server, FFGL loading, Art-Net / sACN |
+| `app/crates/io` | OSC, MIDI, Ableton Link, REST server, FFGL host (EGL / WGL), Art-Net / sACN |
 | `app/crates/project` | `.lavmfx` load / save, `.avc` import, media path resolution, fixture library |
 | `app/lavmfx` | The app (egui): `src/app.rs` main window, `src/app/*` panels, `src/output.rs` output windows |
-| `packaging/` | Portable build scripts (Linux native, Linux portable + AppImage in a podman container, Windows cross-build) |
+| `tools/` | `check.sh` (the checks before "done"), `ffgl-test-plugins.sh` (FFGL test plugins) |
+| `.github/workflows/` | CI: Linux, Windows, macOS |
+| `packaging/` | Portable build scripts (Linux native, Linux portable + AppImage in a podman container, Windows cross-build, Windows native build + installer) |
 
 ## Code conventions
 
@@ -75,6 +126,8 @@ Before you say a change is done: `cargo fmt --all`, clippy clean, and
   rename or remove serialized fields without a migration.
 - **Interop shapes:** the composition model and the REST API follow the
   REST JSON shape existing VJ controllers use, on purpose. Keep it that way.
+- Render tests take their GPU from `lavmfx-render`'s `test_gpu::gpu()`: a
+  device per test hung the run on Windows.
 - Add tests for logic (model, parsing, import, DSP, undo). Keep them fast and
   independent of hardware, network and the user's files; a test that needs an
   installed app or file must skip quietly when it's missing.
@@ -93,6 +146,11 @@ The app keeps running after the shot, so always wrap it in `timeout`. More
 `grep -rn "LAVMFX_SCREENSHOT_" app/lavmfx/src`. Use a scratch
 `XDG_CONFIG_HOME` so the user's settings aren't changed, and a null audio
 sink, or none, so nothing is heard.
+
+On Windows `XDG_CONFIG_HOME` is ignored: settings and the log are always in
+`%APPDATA%\lavmfx`. Check that the app isn't running, move that folder aside,
+run, and put it back. There is no `timeout` for this either: start the process
+and end it after about 20 s.
 
 Other hooks: `LAVMFX_PRESENT=vsync|novsync|fifo|mailbox|immediate` (present
 mode), `WGPU_BACKEND=vulkan|dx12|…`, `RUST_LOG=…` (Windows release builds log

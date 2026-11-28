@@ -20,7 +20,7 @@ mapping › audio-reactive control › DMX**.
 | Audio-reactive | Audio input and clip audio, FFT bands driving any parameter, dashboards |
 | Projection mapping | Fullscreen per display, slices, input crop, corner-pin / bezier / grid warp, masks, soft edges, polygon slices, test card, video routing and feedback sources |
 | Live control | Keyboard and MIDI learn, OSC, a REST API, Ableton Link, tap tempo, quantised launch, SMPTE timecode in (LTC / MTC), an Open Stage Control tablet layout, undo for every change |
-| Interop | Import of Resolume Arena `.avc` compositions, ISF shaders, NDI in / out, PipeWire video sharing and capture devices (Linux), FFGL plugins (Linux) |
+| Interop | Import of Resolume Arena `.avc` compositions, ISF shaders, NDI in / out, PipeWire video sharing and capture devices (Linux), Spout video sharing (Windows), FFGL plugins (Linux, Windows) |
 | Recording | Record the output (with audio), snapshots, render clips with their effects; codec presets |
 
 ## Being finished
@@ -49,8 +49,8 @@ mapping › audio-reactive control › DMX**.
 
 These are wanted, but not scheduled yet:
 
-- **Platforms**: Spout (Windows) and Syphon (macOS) texture sharing, FFGL
-  plugins on Windows and macOS, more capture formats.
+- **Platforms**: Syphon (macOS) texture sharing, FFGL plugins on macOS, Spout
+  GPU-to-GPU transfer, more capture formats.
 - **Live control**: MIDI clock in / out, controller presets (APC40, APC mini,
   nanoKONTROL2), OSC learn, more REST endpoints.
 - **Playback**: beat-sliced loops, more crossfader behaviours, zero-copy

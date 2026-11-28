@@ -26,5 +26,5 @@ copy_docs() {
 copy_licenses() {
     install -Dm644 "$root/LICENSE" "$1/LICENSE"
     install -Dm644 "$root/packaging/THIRD-PARTY.md" "$1/licenses/THIRD-PARTY.md"
-    python3 "$root/packaging/collect-licenses.py" "$1/licenses/rust-crates.txt" "$2"
+    "${PYTHON:-python3}" "$root/packaging/collect-licenses.py" "$1/licenses/rust-crates.txt" "$2"
 }

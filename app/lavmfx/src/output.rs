@@ -758,6 +758,10 @@ fn place_window(ctx: &egui::Context, st: &WindowState, pl: Placement, frame: u32
         4 if pl.fullscreen => {
             log::info!("output window: fullscreen on display {}", pl.monitor + 1);
             ctx.send_viewport_cmd(ViewportCommand::SetMonitor(pl.monitor));
+            // The window wasn't created fullscreen, so egui gave it winit's
+            // "undecorated shadow", which starts the picture 1 px down: a
+            // white line along the top. Sent once fullscreen, this turns it off.
+            ctx.send_viewport_cmd(ViewportCommand::Decorations(false));
         }
         4 => {
             let aspect = st.size.0 as f32 / st.size.1.max(1) as f32;

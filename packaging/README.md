@@ -1,12 +1,14 @@
 # Packaging
 
-Portable builds, made on Linux (x86-64). Each script writes into `dist/`.
+Portable builds. Each script writes into `dist/`. All are made on Linux (x86-64)
+except `build-windows-native.sh`, which runs on Windows.
 
 | Script | Makes | Runs on |
 |---|---|---|
 | `build-linux-native.sh` | `lavmfx-<v>-linux-x86_64-arch.tar.gz` | Arch / CachyOS with `ffmpeg` 9.x (uses the system's FFmpeg) |
 | `build-linux-portable.sh` | `lavmfx-<v>-linux-x86_64.tar.gz` + `.AppImage` | other distros with glibc 2.35+ (FFmpeg bundled in `lib/`); built in an Ubuntu 22.04 podman container (`linux-portable/Containerfile`) |
 | `build-windows.sh` | `lavmfx-<v>-windows-x86_64.zip` | Windows 10 / 11 x64 (FFmpeg + libc++ DLLs next to the exe; `troubleshooting/` holds the `windows-tests/*.bat` graphics tests) |
+| `build-windows-native.sh` | the same `.zip` name + `lavmfx-<v>-windows-x86_64-setup.exe` (per-user installer, `windows-installer.iss`) | Windows 10 / 11 x64 (FFmpeg + Visual C++ runtime DLLs next to the exe) |
 
 Every package carries `LICENSE` and `licenses/` (`THIRD-PARTY.md`, and
 `rust-crates.txt` made by `collect-licenses.py`), and is built with
@@ -32,6 +34,23 @@ Downloaded once into `~/.local/opt/lavmfx-build/` (override with
 
 System tools: podman (rootless; the image installs Rust 1.100.0 itself), Rust (rustup) with the `x86_64-pc-windows-gnullvm` target,
 clang + lld + llvm-ar + llvm-rc, cmake, rsvg-convert, ImageMagick, bsdtar.
+
+## Building on Windows
+
+Run `bash packaging/build-windows-native.sh` from Git Bash. It needs:
+
+- rustup with the default `x86_64-pc-windows-msvc` toolchain
+  (`winget install Rustlang.Rustup`)
+- Visual Studio 2022 or its Build Tools: C++ tools, Windows SDK, CMake
+- LLVM, for libclang and llvm-objdump (`winget install LLVM.LLVM`)
+- Inno Setup 6 (`winget install JRSoftware.InnoSetup`)
+- Python 3 and Git for Windows
+- the `ffmpeg-win/` download above, in the same folder
+
+For a plain `cargo build` outside the script, set `FFMPEG_DIR` and
+`LIBCLANG_PATH`, have `cmake` on `PATH` and `RC` pointing at the SDK's
+`rc.exe` (without it the exe has no icon), and add FFmpeg's `bin\` to `PATH` to
+run the program or the tests.
 
 ## Windows cross toolchain (`wintc/`)
 

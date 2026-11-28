@@ -1829,6 +1829,7 @@ dependencies = [
  "serde_json",
  "thiserror 2.0.21",
  "tiny_http",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -1841,6 +1842,7 @@ dependencies = [
  "pipewire",
  "snap",
  "thiserror 2.0.21",
+ "windows",
 ]
 
 [[package]]

@@ -1,0 +1,164 @@
+# Builds and tests every push and pull request on Linux and Windows, and
+# compile-checks macOS. A change made on one system is checked on the others
+# before it is merged: nobody has to remember to.
+#
+# Linux and Windows run tools/check.sh (rustfmt, clippy -D warnings, tests with
+# a list of skipped tests). Linux also builds the FFGL SDK samples so the FFGL
+# host test really runs (Mesa's software OpenGL), and Vulkan comes from Mesa's
+# lavapipe so the GPU render tests run too.
+#
+# FFmpeg is the same pinned BtbN build as the packages (packaging/README.md).
+# BtbN prunes old autobuilds: when a download 404s, move all three pins (here
+# and in packaging/README.md) to a newer release together.
+name: CI
+
+on:
+  push:
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  RUST_VERSION: "1.100.0"
+  FFMPEG_RELEASE: autobuild-2026-11-24-12-41
+  FFMPEG_NAME: ffmpeg-n9.0.2-963-g4d831360c9
+  CARGO_TERM_COLOR: always
+
+jobs:
+  linux:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    env:
+      FFMPEG_SHA256: d7ca63e8f70f84eca921dc1295673854fcd756feeaff11f21a669104a54a3533
+    steps:
+      - uses: actions/checkout@v4
+      - name: System packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            build-essential pkg-config cmake clang libclang-dev \
+            libasound2-dev libpipewire-0.3-dev libspa-0.2-dev \
+            mesa-vulkan-drivers libvulkan1 libegl1 libegl-dev libgl-dev libglew-dev \
+            libva2 libva-drm2 libva-x11-2 libva-wayland2 libvdpau1
+          # libva / libvdpau: the BtbN FFmpeg build aborts (not just fails) when it
+          # tries hardware decoding and these libraries are missing.
+      - name: Rust
+        run: |
+          rustup toolchain install "$RUST_VERSION" --profile minimal -c clippy,rustfmt
+          rustup default "$RUST_VERSION"
+      - uses: actions/cache@v4
+        with:
+          path: ~/ffmpeg
+          key: ffmpeg-linux-${{ env.FFMPEG_SHA256 }}
+      - name: FFmpeg
+        run: |
+          if [ ! -d ~/ffmpeg/lib ]; then
+            f="$FFMPEG_NAME-linux64-gpl-shared-9.0.tar.xz"
+            curl -fsSL -o "/tmp/$f" "https://github.com/BtbN/FFmpeg-Builds/releases/download/$FFMPEG_RELEASE/$f"
+            echo "$FFMPEG_SHA256  /tmp/$f" | sha256sum -c -
+            mkdir -p ~/ffmpeg && tar -xJf "/tmp/$f" -C ~/ffmpeg --strip-components=1
+          fi
+          echo "FFMPEG_DIR=$HOME/ffmpeg" >> "$GITHUB_ENV"
+          echo "PKG_CONFIG_PATH=$HOME/ffmpeg/lib/pkgconfig" >> "$GITHUB_ENV"
+          echo "LD_LIBRARY_PATH=$HOME/ffmpeg/lib" >> "$GITHUB_ENV"
+          echo "$HOME/ffmpeg/bin" >> "$GITHUB_PATH"
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            app/target
+          key: cargo-linux-${{ env.RUST_VERSION }}-${{ hashFiles('app/Cargo.lock') }}
+          restore-keys: cargo-linux-${{ env.RUST_VERSION }}-
+      - name: FFGL test plugins
+        run: tools/ffgl-test-plugins.sh
+      - name: Check
+        env:
+          EGL_PLATFORM: surfaceless # no display on the runner
+          WGPU_BACKEND: vulkan
+          LAVMFX_CHECK_LOGS: ${{ runner.temp }}/check-logs
+        run: tools/check.sh --no-cross
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: check-logs-linux
+          path: ${{ runner.temp }}/check-logs
+
+  windows:
+    runs-on: windows-2022
+    timeout-minutes: 90
+    env:
+      FFMPEG_SHA256: 3fd7efe7967e056a0dd5146ff4cc5071ec03b5d1f417005a302b6482be14b6c6
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+      - name: Rust
+        run: |
+          rustup toolchain install "$RUST_VERSION" --profile minimal -c clippy,rustfmt
+          rustup default "$RUST_VERSION"
+      - uses: actions/cache@v4
+        with:
+          path: ~/ffmpeg
+          key: ffmpeg-win-${{ env.FFMPEG_SHA256 }}
+      - name: FFmpeg
+        run: |
+          if [ ! -d ~/ffmpeg/bin ]; then
+            f="$FFMPEG_NAME-win64-gpl-shared-9.0.zip"
+            curl -fsSL -o "$RUNNER_TEMP/$f" "https://github.com/BtbN/FFmpeg-Builds/releases/download/$FFMPEG_RELEASE/$f"
+            echo "$FFMPEG_SHA256  $RUNNER_TEMP/$f" | sha256sum -c -
+            unzip -q "$RUNNER_TEMP/$f" -d "$RUNNER_TEMP/ff"
+            mv "$RUNNER_TEMP/ff/$FFMPEG_NAME-win64-gpl-shared-9.0" ~/ffmpeg
+          fi
+          echo "FFMPEG_DIR=$(cygpath -w ~/ffmpeg)" >> "$GITHUB_ENV"
+          echo "LIBCLANG_PATH=C:\\Program Files\\LLVM\\bin" >> "$GITHUB_ENV"
+          cygpath -w ~/ffmpeg/bin >> "$GITHUB_PATH"
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            app/target
+          key: cargo-windows-${{ env.RUST_VERSION }}-${{ hashFiles('app/Cargo.lock') }}
+          restore-keys: cargo-windows-${{ env.RUST_VERSION }}-
+      - name: Check
+        env:
+          LAVMFX_CHECK_LOGS: ${{ runner.temp }}/check-logs
+          # The runner has no GPU, only WARP (Microsoft Basic Render Driver),
+          # which loses the device while compiling the effects shader. The
+          # render tests skip (listed as NOT CHECKED); Linux runs them on lavapipe.
+          LAVMFX_TEST_SKIP_SOFTWARE_GPU: "1"
+        run: tools/check.sh --no-cross
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: check-logs-windows
+          path: ${{ runner.temp }}/check-logs
+
+  # Compile check only, and not yet required: the macOS port hasn't started.
+  # Its job is to show early when shared code stops building there.
+  macos:
+    runs-on: macos-latest
+    timeout-minutes: 60
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - name: Packages
+        run: brew install ffmpeg pkgconf cmake llvm
+      - name: Rust
+        run: |
+          rustup toolchain install "$RUST_VERSION" --profile minimal -c clippy
+          rustup default "$RUST_VERSION"
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            app/target
+          key: cargo-macos-${{ env.RUST_VERSION }}-${{ hashFiles('app/Cargo.lock') }}
+          restore-keys: cargo-macos-${{ env.RUST_VERSION }}-
+      - name: Check
+        working-directory: app
+        run: |
+          export LIBCLANG_PATH="$(brew --prefix llvm)/lib"
+          cargo clippy --workspace --all-targets --locked -- -D warnings

@@ -3,6 +3,20 @@
 What changed in each LAVMFX release. Downloads are on the
 [Releases](https://github.com/p0sthuman/lavmfx/releases) page.
 
+## Unreleased
+
+### Added
+
+- **Windows: Spout** video sharing: Spout senders show in Sources › Spout, and
+  the composition can be sent as a Spout sender.
+- **Windows: FFGL** 2.x effect and source plugins (`.dll`).
+- **Windows**: `packaging/build-windows-native.sh` builds the portable `.zip`
+  and a setup `.exe` on Windows.
+
+### Fixed
+
+- **Windows**: a thin white line along the top of fullscreen outputs.
+
 ## 0.2.5 (pre-release)
 
 ### Added
