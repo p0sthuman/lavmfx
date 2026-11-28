@@ -7,8 +7,8 @@
 //! * [`output`]: publish the composition ([`FrameSink`]).
 //!
 //! PipeWire runs on one thread ("pipewire") that owns the connection; the
-//! app talks to it through a channel. Spout / Syphon (GPU texture sharing via
-//! DirectX / Metal) are not built yet: they report so.
+//! app talks to it through a channel. Spout (`spout.rs`) runs a thread per
+//! receiver / output. Syphon (Metal) isn't built yet: it reports so.
 
 use std::sync::Arc;
 
@@ -53,20 +53,16 @@ pub fn output(name: &str, width: u32, height: u32) -> Result<Box<dyn FrameSink>,
     imp::output(name, width, height)
 }
 
-#[cfg(not(target_os = "linux"))]
+#[cfg(windows)]
+#[path = "spout.rs"]
+mod imp;
+
+#[cfg(not(any(target_os = "linux", windows)))]
 mod imp {
     use super::*;
 
     fn not_yet() -> String {
-        format!(
-            "{} isn't built yet (needs a {} session)",
-            super::backend(),
-            if cfg!(target_os = "windows") {
-                "Windows"
-            } else {
-                "macOS"
-            }
-        )
+        format!("{} isn't built yet (needs a macOS session)", super::backend())
     }
     pub fn unavailable() -> Option<String> {
         Some(not_yet())

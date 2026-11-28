@@ -867,7 +867,7 @@ fn page(
                 ui,
                 &format!(
                     "FFGL 2.x plugins (.{}) from these folders: effects show in Effects › FFGL, sources in Sources › FFGL. \
-                     Linux only for now; mixers not yet.",
+                     Linux and Windows; mixers not yet.",
                     lavmfx_io::ffgl::plugin_extension()
                 ),
             );

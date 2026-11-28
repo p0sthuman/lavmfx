@@ -31,7 +31,13 @@ years after the release that included the build.
 
 The Arch / CachyOS package doesn't bundle FFmpeg; it uses the system's.
 
-## LLVM runtime (Windows `.zip` only)
+## Microsoft Visual C++ runtime (Windows packages built on Windows)
+
+`msvcp140.dll`, `vcruntime140.dll` and `vcruntime140_1.dll` are Microsoft's
+redistributable Visual C++ runtime, unmodified, under the Visual Studio licence
+terms: <https://learn.microsoft.com/cpp/windows/redistributing-visual-cpp-files>.
+
+## LLVM runtime (Windows `.zip` cross-built on Linux only)
 
 `libc++.dll` and `libunwind.dll` come from the LLVM project (via llvm-mingw),
 under the Apache License v2.0 with LLVM Exceptions:

@@ -9,6 +9,10 @@ GPU effects, audio-reactive control, mapping, DMX, MIDI / OSC / REST control,
 NDI, recording, and import of Resolume Arena `.avc` files. Licence:
 GPL-3.0-or-later.
 
+**Open handoff:** [docs/windows-handoff.md](docs/windows-handoff.md) (Windows
+work of 2026-11-28, not yet checked on Linux). Read it before working on FFGL,
+video sharing, render tests or packaging.
+
 ## Hard rules
 
 1. **No third-party creative content or closed-source code.** Never add
@@ -45,6 +49,15 @@ Needs Rust 1.95+, a C/C++ compiler, CMake, clang, and the FFmpeg 8 / 9,
 PipeWire and ALSA development files (Linux). The release build takes several
 minutes; prefer `cargo check` / `cargo test -p <crate>` while iterating.
 
+On Windows: the MSVC toolchain, CMake, LLVM (libclang) and an FFmpeg 8 / 9
+shared build; the environment variables are listed under "Building on Windows"
+in [packaging/README.md](packaging/README.md). The app and the tests need
+FFmpeg's `bin\` on `PATH`.
+
+Code behind `cfg(windows)` / `cfg(target_os = "linux")` is only compiled on that
+system. After changing shared code around it (FFGL, `share.rs`, Cargo targets),
+say which systems you built on.
+
 Before you say a change is done: `cargo fmt --all`, clippy clean, and
 `cargo test --workspace` passing. Report failures as they are, with the output.
 
@@ -54,12 +67,12 @@ Before you say a change is done: `cargo fmt --all`, clippy clean, and
 |---|---|
 | `app/crates/core` | Composition model, parameters, undo history, effect / source catalogues (`data/*.json`), parameter animation (`drive`), clock / transport, control addresses (OSC / REST), DMX and output models |
 | `app/crates/render` | wgpu compositor, WGSL effects (`src/shaders/effects.wgsl`), slices and warping, ISF |
-| `app/crates/media` | FFmpeg decoding, player threads, HAP, audio files, recording, NDI, PipeWire sharing, capture |
+| `app/crates/media` | FFmpeg decoding, player threads, HAP, audio files, recording, NDI, shared video (`share.rs`: PipeWire; `spout.rs`: Spout), capture |
 | `app/crates/audio` | Audio devices, FFT, the audio mixer and audio effects |
-| `app/crates/io` | OSC, MIDI, Ableton Link, REST server, FFGL loading, Art-Net / sACN |
+| `app/crates/io` | OSC, MIDI, Ableton Link, REST server, FFGL host (EGL / WGL), Art-Net / sACN |
 | `app/crates/project` | `.lavmfx` load / save, `.avc` import, media path resolution, fixture library |
 | `app/lavmfx` | The app (egui): `src/app.rs` main window, `src/app/*` panels, `src/output.rs` output windows |
-| `packaging/` | Portable build scripts (Linux native, Linux portable + AppImage in a podman container, Windows cross-build) |
+| `packaging/` | Portable build scripts (Linux native, Linux portable + AppImage in a podman container, Windows cross-build, Windows native build + installer) |
 
 ## Code conventions
 
@@ -75,6 +88,8 @@ Before you say a change is done: `cargo fmt --all`, clippy clean, and
   rename or remove serialized fields without a migration.
 - **Interop shapes:** the composition model and the REST API follow the
   REST JSON shape existing VJ controllers use, on purpose. Keep it that way.
+- Render tests take their GPU from `lavmfx-render`'s `test_gpu::gpu()`: a
+  device per test hung the run on Windows.
 - Add tests for logic (model, parsing, import, DSP, undo). Keep them fast and
   independent of hardware, network and the user's files; a test that needs an
   installed app or file must skip quietly when it's missing.
@@ -93,6 +108,11 @@ The app keeps running after the shot, so always wrap it in `timeout`. More
 `grep -rn "LAVMFX_SCREENSHOT_" app/lavmfx/src`. Use a scratch
 `XDG_CONFIG_HOME` so the user's settings aren't changed, and a null audio
 sink, or none, so nothing is heard.
+
+On Windows `XDG_CONFIG_HOME` is ignored: settings and the log are always in
+`%APPDATA%\lavmfx`. Check that the app isn't running, move that folder aside,
+run, and put it back. There is no `timeout` for this either: start the process
+and end it after about 20 s.
 
 Other hooks: `LAVMFX_PRESENT=vsync|novsync|fifo|mailbox|immediate` (present
 mode), `WGPU_BACKEND=vulkan|dx12|…`, `RUST_LOG=…` (Windows release builds log

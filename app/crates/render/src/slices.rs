@@ -580,12 +580,7 @@ impl SlicePass {
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    fn gpu() -> Option<(wgpu::Device, wgpu::Queue)> {
-        let instance = wgpu::Instance::new(wgpu::InstanceDescriptor::new_without_display_handle_from_env());
-        let adapter = pollster::block_on(instance.request_adapter(&Default::default())).ok()?;
-        Some(pollster::block_on(adapter.request_device(&Default::default())).unwrap())
-    }
+    use crate::test_gpu::gpu;
 
     /// 64×32 source: left half red, right half green.
     fn source(device: &wgpu::Device, queue: &wgpu::Queue) -> wgpu::TextureView {

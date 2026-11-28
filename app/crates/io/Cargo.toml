@@ -18,6 +18,16 @@ thiserror.workspace = true
 tiny_http = "0.12"
 libloading = "0.8"
 
+[target.'cfg(any(target_os = "linux", windows))'.dependencies]
+glow = "0.17" # FFGL host
+
 [target.'cfg(target_os = "linux")'.dependencies]
-glow = "0.17"
 khronos-egl = { version = "6", features = ["dynamic"] }
+
+[target.'cfg(windows)'.dependencies]
+windows-sys = { version = "0.61", features = [ # WGL context for FFGL (MIT / Apache-2.0)
+    "Win32_Graphics_Gdi",
+    "Win32_Graphics_OpenGL",
+    "Win32_System_LibraryLoader",
+    "Win32_UI_WindowsAndMessaging",
+] }

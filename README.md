@@ -14,8 +14,8 @@ The M is for both *Mapping* and *Mixer*.
 
 **One app on Linux, Windows and macOS**, with the same `.lavmfx`
 show files and the same control over MIDI, OSC and REST, so a show moves
-between machines as it is. A few extras are system-specific for now, like
-PipeWire video sharing and FFGL plugins on Linux.
+between machines as it is. A few extras are system-specific: video sharing is
+PipeWire on Linux and Spout on Windows, and FFGL plugins run on both.
 
 > Early days: the app works and is used for testing. The latest pre-release,
 > 0.2.5, is on the [Releases](https://github.com/p0sthuman/lavmfx/releases)
@@ -34,7 +34,7 @@ PipeWire video sharing and FFGL plugins on Linux.
   marked; relink them one by one, by searching a folder for the file names, or
   by swapping a path prefix (a show moved to another drive or machine).
 - **Effects**: about 100 GPU video effects and 17 generators, ISF shaders,
-  FFGL plugins (Linux), and six audio effects, on clips, layers, groups and the
+  FFGL plugins (Linux, Windows), and six audio effects, on clips, layers, groups and the
   composition.
 - **Audio-reactive and tempo-driven**: FFT from an audio input or the clips,
   envelopes, LFO-style timelines, BPM sync, tap tempo, Ableton Link.
@@ -50,7 +50,7 @@ PipeWire video sharing and FFGL plugins on Linux.
   fixture library and editor, Art-Net input for control.
 - **Live control**: keyboard and MIDI learn, OSC and a REST API, an
   Open Stage Control tablet layout (`remote/`), undo for every change.
-- **Interop**: NDI in / out, PipeWire video sharing (Linux), recording and clip
+- **Interop**: NDI in / out, video sharing (PipeWire on Linux, Spout on Windows), recording and clip
   rendering, and import of Resolume Arena `.avc` compositions.
 
 ## Screenshots

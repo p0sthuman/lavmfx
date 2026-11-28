@@ -1,7 +1,8 @@
 //! FFGL (FreeFrame GL 2.x) plugin host: effects, sources (mixers listed only).
 //!
 //! FFGL plugins are OpenGL; our renderer is wgpu. One thread ("ffgl") owns a
-//! headless OpenGL 4.1+ core context (EGL; Linux only for now), loads the
+//! headless OpenGL 4.1+ core context (EGL on Linux, WGL on Windows; not yet on
+//! macOS), loads the
 //! plugin libraries and makes every plugin call. The app scans folders with
 //! [`FfglHost::scan`] and runs instances with [`FfglHost::process`]: RGBA in,
 //! RGBA out (rows top first; flipped for GL, whose origin is bottom-left).
@@ -305,8 +306,20 @@ fn library_path(p: &Path) -> PathBuf {
     p.to_path_buf()
 }
 
+#[cfg(windows)]
+unsafe fn open_library(p: &Path) -> Result<libloading::Library, libloading::Error> {
+    use libloading::os::windows::{LOAD_WITH_ALTERED_SEARCH_PATH, Library};
+    // DLLs a plugin ships next to itself are looked for in its own folder.
+    unsafe { Library::load_with_flags(p, LOAD_WITH_ALTERED_SEARCH_PATH) }.map(Into::into)
+}
+
+#[cfg(not(windows))]
+unsafe fn open_library(p: &Path) -> Result<libloading::Library, libloading::Error> {
+    unsafe { libloading::Library::new(p) }
+}
+
 fn load(path: &Path) -> Result<Plugin, String> {
-    let lib = unsafe { libloading::Library::new(library_path(path)) }.map_err(|e| format!("load: {e}"))?;
+    let lib = unsafe { open_library(&library_path(path)) }.map_err(|e| format!("load: {e}"))?;
     let main: PlugMain =
         *unsafe { lib.get::<PlugMain>(b"plugMain\0") }.map_err(|_| "no plugMain (not an FFGL plugin)")?;
     let info = call(main, FF_GET_INFO, uint(0), std::ptr::null_mut());
@@ -572,37 +585,15 @@ fn thread_main(rx: Receiver<Cmd>, gpu_hint: Option<String>) {
 // ------------------------------------------------------------------ GL
 
 #[cfg(target_os = "linux")]
-mod gl {
+mod context {
     use glow::HasContext;
 
-    /// Rows bottom-up (GL) ⇄ top-down, whole rows at a time.
-    fn flip_rows(px: &[u8], row: usize) -> Vec<u8> {
-        let mut out = Vec::with_capacity(px.len());
-        for r in px.chunks_exact(row).rev() {
-            out.extend_from_slice(r);
-        }
-        out
-    }
-
-    /// Headless OpenGL 4.1+ core context (EGL).
-    pub struct Context {
-        gl: glow::Context,
-        _egl: khronos_egl::DynamicInstance<khronos_egl::EGL1_5>,
-    }
-
-    /// Per instance: input texture, output texture + framebuffer.
-    pub struct Targets {
-        input: glow::Texture,
-        output: glow::Texture,
-        fbo: glow::Framebuffer,
-        size: (u32, u32),
-    }
-
-    type Egl = khronos_egl::DynamicInstance<khronos_egl::EGL1_5>;
+    /// What keeps the context alive: the loaded EGL library.
+    pub type Native = khronos_egl::DynamicInstance<khronos_egl::EGL1_5>;
 
     /// An OpenGL 4.1 core context made current on `display` (surfaceless, else
     /// a 1×1 pbuffer); returns the GL renderer string.
-    fn try_display(lib: &Egl, display: khronos_egl::Display) -> Result<(glow::Context, String), String> {
+    fn try_display(lib: &Native, display: khronos_egl::Display) -> Result<(glow::Context, String), String> {
         use khronos_egl as egl;
         lib.initialize(display).map_err(|e| format!("EGL initialise: {e}"))?;
         lib.bind_api(egl::OPENGL_API)
@@ -647,55 +638,220 @@ mod gl {
         Ok((gl, renderer))
     }
 
-    impl Context {
-        /// `gpu_hint`: part of the GPU name the app renders on (e.g. "NVIDIA"):
-        /// on hybrid laptops EGL's default display is often the other GPU.
-        pub fn new(gpu_hint: Option<&str>) -> Result<Self, String> {
-            use khronos_egl as egl;
-            let lib = unsafe { Egl::load_required() }.map_err(|e| format!("EGL 1.5 not available: {e}"))?;
-            // EGL devices (EGL_EXT_device_enumeration + platform_device).
-            const PLATFORM_DEVICE: egl::Enum = 0x313F;
-            type QueryDevices = unsafe extern "C" fn(i32, *mut *mut std::ffi::c_void, *mut i32) -> u32;
-            let mut found: Option<(glow::Context, String)> = None;
-            if let (Some(hint), Some(q)) = (gpu_hint, lib.get_proc_address("eglQueryDevicesEXT")) {
-                let query: QueryDevices = unsafe { std::mem::transmute(q) };
-                let mut devs = [std::ptr::null_mut(); 16];
-                let mut n = 0;
-                let ok = unsafe { query(16, devs.as_mut_ptr(), &mut n) };
-                log::debug!("FFGL: eglQueryDevicesEXT ok {ok} devices {n}");
-                if ok != 0 {
-                    for d in devs.iter().take(n.max(0) as usize) {
-                        let Ok(display) =
-                            (unsafe { lib.get_platform_display(PLATFORM_DEVICE, *d, &[egl::ATTRIB_NONE]) })
-                        else {
-                            continue;
-                        };
-                        let tried = try_display(&lib, display);
-                        log::debug!("FFGL: EGL device: {:?}", tried.as_ref().map(|t| &t.1));
-                        match tried {
-                            Ok((gl, r)) if r.to_lowercase().contains(&hint.to_lowercase()) => {
-                                found = Some((gl, r));
-                                break;
-                            }
-                            Ok(_) | Err(_) => {
-                                let _ = lib.make_current(display, None, None, None);
-                                let _ = lib.terminate(display);
-                            }
+    /// `gpu_hint`: on hybrid laptops EGL's default display is often the other GPU.
+    pub fn create(gpu_hint: Option<&str>) -> Result<(glow::Context, String, Native), String> {
+        use khronos_egl as egl;
+        let lib = unsafe { Native::load_required() }.map_err(|e| format!("EGL 1.5 not available: {e}"))?;
+        // EGL devices (EGL_EXT_device_enumeration + platform_device).
+        const PLATFORM_DEVICE: egl::Enum = 0x313F;
+        type QueryDevices = unsafe extern "C" fn(i32, *mut *mut std::ffi::c_void, *mut i32) -> u32;
+        let mut found: Option<(glow::Context, String)> = None;
+        if let (Some(hint), Some(q)) = (gpu_hint, lib.get_proc_address("eglQueryDevicesEXT")) {
+            let query: QueryDevices = unsafe { std::mem::transmute(q) };
+            let mut devs = [std::ptr::null_mut(); 16];
+            let mut n = 0;
+            let ok = unsafe { query(16, devs.as_mut_ptr(), &mut n) };
+            log::debug!("FFGL: eglQueryDevicesEXT ok {ok} devices {n}");
+            if ok != 0 {
+                for d in devs.iter().take(n.max(0) as usize) {
+                    let Ok(display) = (unsafe { lib.get_platform_display(PLATFORM_DEVICE, *d, &[egl::ATTRIB_NONE]) })
+                    else {
+                        continue;
+                    };
+                    let tried = try_display(&lib, display);
+                    log::debug!("FFGL: EGL device: {:?}", tried.as_ref().map(|t| &t.1));
+                    match tried {
+                        Ok((gl, r)) if r.to_lowercase().contains(&hint.to_lowercase()) => {
+                            found = Some((gl, r));
+                            break;
+                        }
+                        Ok(_) | Err(_) => {
+                            let _ = lib.make_current(display, None, None, None);
+                            let _ = lib.terminate(display);
                         }
                     }
                 }
             }
-            let (gl, renderer) = match found {
-                Some(f) => f,
-                None => {
-                    let display = unsafe { lib.get_display(egl::DEFAULT_DISPLAY) }.ok_or("no EGL display")?;
-                    try_display(&lib, display)?
+        }
+        let (gl, renderer) = match found {
+            Some(f) => f,
+            None => {
+                let display = unsafe { lib.get_display(egl::DEFAULT_DISPLAY) }.ok_or("no EGL display")?;
+                try_display(&lib, display)?
+            }
+        };
+        Ok((gl, renderer, lib))
+    }
+}
+
+#[cfg(windows)]
+mod context {
+    use std::ffi::c_void;
+    use std::ptr::{null, null_mut};
+
+    use glow::HasContext;
+    use windows_sys::Win32::Graphics::Gdi::{GetDC, HDC, ReleaseDC};
+    use windows_sys::Win32::Graphics::OpenGL::{
+        ChoosePixelFormat, HGLRC, PFD_DRAW_TO_WINDOW, PFD_SUPPORT_OPENGL, PFD_TYPE_RGBA, PIXELFORMATDESCRIPTOR,
+        SetPixelFormat, wglCreateContext, wglDeleteContext, wglGetProcAddress, wglMakeCurrent,
+    };
+    use windows_sys::Win32::System::LibraryLoader::{GetProcAddress, LoadLibraryA};
+    use windows_sys::Win32::UI::WindowsAndMessaging::{CreateWindowExW, DestroyWindow, HWND_MESSAGE};
+    use windows_sys::core::w;
+
+    /// WGL needs a window's device context. This window is message-only: never
+    /// shown, and it gets no broadcast messages (this thread runs no message loop).
+    pub struct Native {
+        window: *mut c_void,
+        dc: HDC,
+        context: HGLRC,
+    }
+
+    impl Drop for Native {
+        fn drop(&mut self) {
+            // SAFETY: our own handles, released on the thread that made them.
+            unsafe {
+                if !self.context.is_null() {
+                    wglMakeCurrent(null_mut(), null_mut());
+                    wglDeleteContext(self.context);
                 }
+                if !self.dc.is_null() {
+                    ReleaseDC(self.window, self.dc);
+                }
+                DestroyWindow(self.window);
+            }
+        }
+    }
+
+    fn last_error(what: &str) -> String {
+        format!("{what}: {}", std::io::Error::last_os_error())
+    }
+
+    /// A GL function: extensions from the driver, OpenGL 1.1 from opengl32.dll.
+    fn proc_address(opengl32: *mut c_void, name: &std::ffi::CStr) -> *const c_void {
+        // SAFETY: `name` is NUL-terminated; a context is current.
+        unsafe {
+            let p = wglGetProcAddress(name.as_ptr().cast()).map_or(0, |f| f as usize);
+            // Some drivers answer 1, 2, 3 or -1 for "no such function".
+            if !matches!(p, 0..=3 | usize::MAX) {
+                return p as *const c_void;
+            }
+            GetProcAddress(opengl32, name.as_ptr().cast()).map_or(null(), |f| f as *const c_void)
+        }
+    }
+
+    /// The GPU is the one Windows gives this program for OpenGL (set in
+    /// Settings › Graphics); WGL can't pick one by name, so no hint is used.
+    pub fn create(_gpu_hint: Option<&str>) -> Result<(glow::Context, String, Native), String> {
+        type CreateAttribs = unsafe extern "system" fn(HDC, HGLRC, *const i32) -> HGLRC;
+        // SAFETY: plain Win32 / WGL calls; `Native` releases what was made, also
+        // on the early returns.
+        unsafe {
+            let window = CreateWindowExW(
+                0,
+                w!("STATIC"),
+                w!("LAVMFX FFGL"),
+                0,
+                0,
+                0,
+                1,
+                1,
+                HWND_MESSAGE,
+                null_mut(),
+                null_mut(),
+                null(),
+            );
+            if window.is_null() {
+                return Err(last_error("OpenGL window"));
+            }
+            let mut native = Native {
+                window,
+                dc: null_mut(),
+                context: null_mut(),
             };
+            native.dc = GetDC(window);
+            if native.dc.is_null() {
+                return Err(last_error("device context"));
+            }
+            let pfd = PIXELFORMATDESCRIPTOR {
+                nSize: size_of::<PIXELFORMATDESCRIPTOR>() as u16,
+                nVersion: 1,
+                dwFlags: PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL,
+                iPixelType: PFD_TYPE_RGBA,
+                cColorBits: 32,
+                cAlphaBits: 8,
+                ..std::mem::zeroed()
+            };
+            let format = ChoosePixelFormat(native.dc, &pfd);
+            if format == 0 || SetPixelFormat(native.dc, format, &pfd) == 0 {
+                return Err(last_error("OpenGL pixel format"));
+            }
+            // A legacy context first: it is what hands out the function that
+            // makes a core one.
+            native.context = wglCreateContext(native.dc);
+            if native.context.is_null() || wglMakeCurrent(native.dc, native.context) == 0 {
+                return Err(last_error("OpenGL context"));
+            }
+            let create = wglGetProcAddress(c"wglCreateContextAttribsARB".as_ptr().cast())
+                .ok_or("the graphics driver has no OpenGL 4.1 (wglCreateContextAttribsARB)")?;
+            let create: CreateAttribs = std::mem::transmute(create);
+            // Version 4.1, core profile (WGL_CONTEXT_*_ARB).
+            let attribs = [0x2091, 4, 0x2092, 1, 0x9126, 1, 0];
+            let core = create(native.dc, null_mut(), attribs.as_ptr());
+            if core.is_null() {
+                return Err(last_error("OpenGL 4.1 core context"));
+            }
+            wglMakeCurrent(null_mut(), null_mut());
+            wglDeleteContext(native.context);
+            native.context = core;
+            if wglMakeCurrent(native.dc, core) == 0 {
+                return Err(last_error("make current"));
+            }
+            let opengl32 = LoadLibraryA(c"opengl32.dll".as_ptr().cast());
+            let gl = glow::Context::from_loader_function_cstr(|name| proc_address(opengl32, name));
+            let renderer = gl.get_parameter_string(glow::RENDERER);
+            Ok((gl, renderer, native))
+        }
+    }
+}
+
+#[cfg(any(target_os = "linux", windows))]
+mod gl {
+    use glow::HasContext;
+
+    use super::context;
+
+    /// Rows bottom-up (GL) ⇄ top-down, whole rows at a time.
+    fn flip_rows(px: &[u8], row: usize) -> Vec<u8> {
+        let mut out = Vec::with_capacity(px.len());
+        for r in px.chunks_exact(row).rev() {
+            out.extend_from_slice(r);
+        }
+        out
+    }
+
+    /// Headless OpenGL 4.1+ core context.
+    pub struct Context {
+        gl: glow::Context,
+        _native: context::Native,
+    }
+
+    /// Per instance: input texture, output texture + framebuffer.
+    pub struct Targets {
+        input: glow::Texture,
+        output: glow::Texture,
+        fbo: glow::Framebuffer,
+        size: (u32, u32),
+    }
+
+    impl Context {
+        /// `gpu_hint`: part of the GPU name the app renders on (e.g. "NVIDIA").
+        pub fn new(gpu_hint: Option<&str>) -> Result<Self, String> {
+            let (gl, renderer, native) = context::create(gpu_hint)?;
             log::info!("FFGL: OpenGL {} on {renderer}", unsafe {
                 gl.get_parameter_string(glow::VERSION)
             });
-            Ok(Self { gl, _egl: lib })
+            Ok(Self { gl, _native: native })
         }
 
         pub fn targets(&self) -> Targets {
@@ -819,13 +975,13 @@ mod gl {
     }
 }
 
-#[cfg(not(target_os = "linux"))]
+#[cfg(not(any(target_os = "linux", windows)))]
 mod gl {
     pub struct Context;
     pub struct Targets;
     impl Context {
         pub fn new(_: Option<&str>) -> Result<Self, String> {
-            Err("FFGL hosting isn't built for this OS yet (needs a Windows / macOS session)".into())
+            Err("FFGL hosting isn't built for this OS yet (needs a macOS session)".into())
         }
         pub fn targets(&self) -> Targets {
             Targets

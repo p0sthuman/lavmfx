@@ -1144,7 +1144,8 @@ mod tests {
         assert_eq!(report.autopilot_loops, 1);
         let fi = one.video.as_ref().unwrap().fileinfo.as_ref().unwrap();
         assert!(fi.exists);
-        assert_eq!(fi.path, t.join("disk/VJ/one.mov").to_string_lossy());
+        // Compared as paths: Windows joins with `\`, the expected one has `/`.
+        assert_eq!(std::path::Path::new(&fi.path), t.join("disk/VJ/one.mov"));
         assert_eq!((fi.duration_ms, fi.width, fi.height), (4000.0, 1280, 720));
         // Generator clip: Metaballs (by uniqueTypeId) with its saved Distance and Color.
         let generator = &c.layers[1].clips[0];
