@@ -137,7 +137,15 @@ fn strip(v: &mut J) {
             // `screen_name` / `slice_name`: Slice Chase's cache for finding
             // slices again (relinking it isn't an edit). `collapsed`: an
             // effect folded in its panel (a view change, not an edit).
-            for k in ["id", "ids", "selected", "tempo_controller", "screen_name", "slice_name", "collapsed"] {
+            for k in [
+                "id",
+                "ids",
+                "selected",
+                "tempo_controller",
+                "screen_name",
+                "slice_name",
+                "collapsed",
+            ] {
                 m.remove(k);
             }
             let driven = m
