@@ -1016,7 +1016,9 @@ mod tests {
     #[test]
     fn loads_and_runs_sample_plugins() {
         let Some(dir) = std::env::var_os("LAVMFX_FFGL_TEST") else {
-            eprintln!("skipping: set LAVMFX_FFGL_TEST to a folder of FFGL plugins");
+            eprintln!(
+                "skipping: set LAVMFX_FFGL_TEST to a folder of FFGL plugins (tools/ffgl-test-plugins.sh builds some)"
+            );
             return;
         };
         let host = FfglHost::start(None);
