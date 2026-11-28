@@ -9,10 +9,6 @@ GPU effects, audio-reactive control, mapping, DMX, MIDI / OSC / REST control,
 NDI, recording, and import of Resolume Arena `.avc` files. Licence:
 GPL-3.0-or-later.
 
-**Open handoff:** [docs/windows-handoff.md](docs/windows-handoff.md) (Windows
-work of 2026-11-28; checked on Linux the same day, merge pending). Read it
-before working on FFGL, video sharing, render tests or packaging.
-
 ## Hard rules
 
 1. **No third-party creative content or closed-source code.** Never add
